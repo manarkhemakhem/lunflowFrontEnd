@@ -1,0 +1,26 @@
+<app-header></app-header>
+<div class="dashboard-container">
+  <h2>Tableau de Bord des Collaborateurs</h2>
+  <div class="statistics">
+    <div class="card">
+      <h3>Nombre Total de Collaborateurs</h3>
+      <p>{{ totalCollaborators }}</p>
+    </div>
+    <div class="card">
+      <h3>Administrateurs</h3>
+      <p>{{ totalAdmins }}</p>
+    </div>
+    <div class="card">
+      <h3>Non-Administrateurs</h3>
+      <p>{{ totalNotAdmins }}</p>
+    </div>
+  </div>
+
+
+  <div >
+  <div #barChart style="height: 400px; width: 100%;"></div>
+
+  <div #donutChart style="height: 400px; width: 100%; margin-top: 30px;"></div>
+</div>
+
+</div>
