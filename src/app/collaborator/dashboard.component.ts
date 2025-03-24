@@ -78,8 +78,8 @@ export class DashboardComponent implements OnInit {
         formatter: '{b}: {c} ({d}%)'
       },
       legend: {
-        orient: 'vertical',
-        left: 'left',
+        orient: 'horizontal',
+        bottom: '5%',
         data: ['Admins', 'Non-Admins'],
         textStyle: { fontSize: 12, fontWeight: 'bold' }
       },
@@ -89,8 +89,8 @@ export class DashboardComponent implements OnInit {
         radius: ['40%', '70%'],
         center: ['50%', '50%'],
         data: [
-          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#6833ff' } },
-          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#3813a3' } }
+          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#2475bd' } },
+          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#77b4eb' } }
         ],
         label: {
           show: true,

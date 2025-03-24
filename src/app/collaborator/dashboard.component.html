@@ -5,25 +5,31 @@
 
   <!-- Section des statistiques -->
   <div class="statistics">
-    <div class="card">
+    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
       <h3>Nombre Total de Collaborateurs</h3>
       <p>{{ totalCollaborators }}</p>
     </div>
-    <div class="card">
+    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-user-shield" style="font-size: 24px; color: #42A5F5;"></i>
       <h3>Administrateurs</h3>
       <p>{{ totalAdmins }}</p>
     </div>
-    <div class="card">
+    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-user" style="font-size: 24px; color: #42A5F5;"></i>
       <h3>Non-Administrateurs</h3>
       <p>{{ totalNotAdmins }}</p>
     </div>
   </div>
 
-  <!-- Graphique en pie -->
-  <div class="chart-container">
-    <div #DoughnutChart class="chart" style="height: 400px;"></div> <!-- First bar chart -->
+  <!-- Graphique en Doughnut dans une carte moderne -->
+  <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+    <div class="card-header">
+      <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
+      <h3>Répartition des Collaborateurs</h3>
+    </div>
+    <div class="card-body">
+      <div #DoughnutChart class="chart" style="height: 400px;"></div> <!-- Doughnut chart -->
+    </div>
   </div>
-
-
-
 </div>

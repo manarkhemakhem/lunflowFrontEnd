@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #5d73f1;
+  background-color: #369FDA;
   color: white;
   padding: 15px 20px;
   position: fixed;
@@ -20,9 +20,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.header-left h1 {
-  font-size: 1.8rem;
-  font-weight: 500;
+.header-left h2 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: #f8fafc;
+
 }
 
 
@@ -52,7 +55,7 @@ ul li a {
 
 /* Effet sur hover */
 ul li a:hover, ul li a.active {
-  background-color: #405de1; /* Couleur de survol */
+  background-color: #77b4eb; /* Couleur de survol */
   transform: scale(1.1); /* Agrandissement au survol */
 }
 
