@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DashboardComponent } from "../dashboard/dashboard.component";
+import { DashboardComponent } from "../collaborator/dashboard.component";
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 

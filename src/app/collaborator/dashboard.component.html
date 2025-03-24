@@ -1,6 +1,9 @@
 <app-header></app-header>
+
 <div class="dashboard-container">
   <h2>Tableau de Bord des Collaborateurs</h2>
+
+  <!-- Section des statistiques -->
   <div class="statistics">
     <div class="card">
       <h3>Nombre Total de Collaborateurs</h3>
@@ -16,11 +19,11 @@
     </div>
   </div>
 
+  <!-- Graphique en pie -->
+  <div class="chart-container">
+    <div #DoughnutChart class="chart" style="height: 400px;"></div> <!-- First bar chart -->
+  </div>
 
-  <div >
-  <div #barChart style="height: 400px; width: 100%;"></div>
 
-  <div #donutChart style="height: 400px; width: 100%; margin-top: 30px;"></div>
-</div>
 
 </div>

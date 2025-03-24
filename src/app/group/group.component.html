@@ -1,0 +1,34 @@
+<app-header></app-header>
+<div class="dashboard-container">
+  <h2>Tableau de Bord des groupes</h2>
+
+  <!-- Section des statistiques -->
+  <div class="statistics">
+    <div class="card">
+      <h3>Nombre Total de groupes</h3>
+      <p>{{ totalGroups }}</p>
+    </div>
+    </div>
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Label</th>
+      <th>Nb Collaborateurs</th>
+      <th>Nb Actifs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let group of groups">
+      <td>{{ group.label }}</td>
+      <td>{{ group.nbCollabs }}</td>
+      <td>{{ group.nbCollabs }}</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+</div>

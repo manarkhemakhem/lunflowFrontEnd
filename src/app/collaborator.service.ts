@@ -56,4 +56,15 @@ export class CollaboratorService {
   getCollaboratorsByGroup(groupId: string): Observable<Collaborator[]> {
     return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
   }
-}
+  // Get histogram data (Collaborators creation dates)
+  getCreationDatesHistogram(): Observable<{ [date: string]: number }> {
+    return this.http.get<{ [date: string]: number }>(`${this.apiUrl}/histogram`);
+  }
+
+
+
+    // Get collaborators by group ID
+    getCollaboratorsByGroupId(groupId: string): Observable<Collaborator[]> {
+      return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
+    }
+  }

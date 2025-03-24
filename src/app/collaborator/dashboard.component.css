@@ -53,3 +53,8 @@ h2 {
 
 
 
+.chart {
+  width: 100%;
+  height: 400px; /* Assurez-vous d'avoir une hauteur définie */
+  min-height: 300px; /* Pour éviter un affichage à 0px */
+}
