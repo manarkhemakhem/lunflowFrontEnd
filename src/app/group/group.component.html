@@ -4,12 +4,12 @@
 
   <!-- Section des statistiques -->
   <div class="statistics">
-    <div class="card">
-      <h3>Nombre Total de groupes</h3>
-      <p>{{ totalGroups }}</p>
-    </div>
-    </div>
 
+    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
+        <h3>Nombre Total de Groupes</h3>
+        <p>{{ totalGroups }}</p>
+    </div>
 
 <table class="table">
   <thead>
@@ -20,7 +20,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let group of groups">
+    <tr *ngFor="let group of paginatedGroups">
       <td>{{ group.label }}</td>
       <td>{{ group.nbCollabs }}</td>
       <td>{{ group.nbCollabs }}</td>
@@ -28,7 +28,12 @@
   </tbody>
 </table>
 
-
+<div class="pagination">
+  <button (click)="previousPage()" [disabled]="currentPage === 1">Précédent</button>
+  <span>Page {{ currentPage }} / {{ totalPages }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+</div>
+</div>
 
 
 </div>

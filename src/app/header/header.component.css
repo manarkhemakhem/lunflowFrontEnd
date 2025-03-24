@@ -9,12 +9,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #369FDA;
+  background-color: #469adf;
   color: white;
   padding: 15px 20px;
   position: fixed;
   top: 0;
   left: 0;
+  height: 60px;
   width: 100%;
   z-index: 10;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
