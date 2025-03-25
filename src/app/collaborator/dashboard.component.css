@@ -133,4 +133,9 @@ h2 {
     height: 350px;
   }
 }
+.card:hover {
+  background-color: #77b4eb;
+  transform: scale(1.1);
+  color: white;
+}
 

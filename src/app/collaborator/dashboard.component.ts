@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Collaborator, CollaboratorService } from '../collaborator.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
 import { HeaderComponent } from "../header/header.component";
 
@@ -16,6 +16,11 @@ export class DashboardComponent implements OnInit {
 
   @ViewChild('DoughnutChart', { static: true })    DoughnutChartElement!: ElementRef;
   @ViewChild('histogramChart', { static: false }) chartElement!: ElementRef;
+  @ViewChild('onlineStatusChart', { static: false }) onlineStatusChartElement!: ElementRef;
+  @ViewChild('deletedStatusChart', { static: false }) deletedStatusChartElement!: ElementRef;
+
+
+
   creationHistogram: { [date: string]: number } = {};
   totalCollaborators: number = 0;
   totalAdmins: number = 0;
@@ -23,8 +28,12 @@ export class DashboardComponent implements OnInit {
   collaborators: Collaborator[] = [];
   admins: Collaborator[] = [];
   notAdmins: Collaborator[] = [];
+  onlineStatusMap: Map<string, boolean> = new Map();
+  deletedStatusMap: Map<string, boolean> = new Map();
 
-  constructor(private collaboratorService: CollaboratorService, private cdr: ChangeDetectorRef) { }
+
+
+  constructor(private collaboratorService: CollaboratorService, private cdr: ChangeDetectorRef , private router: Router) { }
 
   ngOnInit(): void {
     if (typeof window !== 'undefined')
@@ -48,6 +57,8 @@ export class DashboardComponent implements OnInit {
     if (Object.keys(this.creationHistogram).length > 0) {
       this.loadChart();
     }  }
+
+
     private loadChart(): void {
       if (!this.chartElement) return;
 
@@ -173,6 +184,9 @@ export class DashboardComponent implements OnInit {
 
     doughnutChart.setOption(option);
   }
-
+  // Méthode pour naviguer vers la liste des collaborateurs
+  navigateToCollaboratorList(): void {
+    this.router.navigate(['/collablist']);
+  }
 
 }
