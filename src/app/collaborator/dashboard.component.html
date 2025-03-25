@@ -22,16 +22,15 @@
     </div>
   </div>
 
-  <!-- Graphique en Doughnut dans une carte moderne -->
-  <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-    <div class="card-header">
+  <div class="chart-container">
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
-      <h3>Répartition des Collaborateurs</h3>
+      <div #DoughnutChart class="chart" style="height: 400px;"></div>
     </div>
-    <div class="card-body">
-      <div #DoughnutChart class="chart" style="height: 400px;"></div> <!-- Doughnut chart -->
-      <div #histogramChart style="width: 100%; height: 400px;"></div>
-      
+
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
+      <div #histogramChart class="chart" style="height: 400px;"></div>
     </div>
   </div>
 </div>

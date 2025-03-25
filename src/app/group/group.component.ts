@@ -34,11 +34,11 @@ export class GroupComponent implements OnInit, AfterViewInit {
       (data) => {
         this.groups = data;
         this.totalGroups = data.length;
-        this.totalPages = Math.ceil(this.totalGroups / this.itemsPerPage);
-        this.paginateData();
-        this.loadCollaboratorsData(); 
+
+        this.loadCollaboratorsData();
 
       },
+
       (error) => {
         this.errorMessage = 'Erreur lors de la récupération des groupes';
         console.error('Erreur:', error);
@@ -48,6 +48,9 @@ export class GroupComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     if (typeof window !== 'undefined')
     {this.loadChart();}
+    setTimeout(() => {
+      this.loadChart();
+    }, 300);
   }
 
   // Méthode pour charger les données des collaborateurs par groupe
@@ -56,54 +59,49 @@ export class GroupComponent implements OnInit, AfterViewInit {
       groupLabel: group.label,
       count: group.nbCollabs  // Utiliser directement nbCollabs des groupes
     }));
-  }
- // Méthode pour créer le graphique avec ECharts
- loadChart(): void {
-  const chart = echarts.init(this.chartElement.nativeElement);
-  const option = {
-    title: {
-      text: 'Nombre de Collaborateurs par Groupe',
-      subtext: 'Graphique des groupes et leur nombre de collaborateurs',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item'
-    },
-    xAxis: {
-      type: 'category',
-      data: this.collaboratorsCountByGroup.map(item => item.groupLabel),
-    },
-    yAxis: {
-      type: 'value',
-    },
-    series: [{
-      data: this.collaboratorsCountByGroup.map(item => item.count),
-      type: 'bar',
-    }]
-  };
-  chart.setOption(option);
-}
 
-  // Méthode pour gérer la pagination
-  paginateData(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedGroups = this.groups.slice(startIndex, endIndex);
+  }
+  loadChart(): void {
+    const chart = echarts.init(this.chartElement.nativeElement);
+    const option = {
+      title: {
+        text: 'Répartition des Collaborateurs par Groupe',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item'
+      },
+      xAxis: {
+        type: 'category',
+        data: this.collaboratorsCountByGroup.map(item => item.groupLabel),
+        axisLabel: {
+          rotate: 45,
+          interval: 0,
+          fontSize: 7,
+          fontWeight: 'bold',
+          color: '#333'
+        }
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [{
+        data: this.collaboratorsCountByGroup.map(item => item.count),
+        type: 'bar',
+        color: '#42A5F5',
+        barWidth: '60%',  // Agrandir la largeur des barres
+        barCategoryGap: '20%',  // Ajouter de l'espace entre les barres
+        label: {
+          show: true,
+          position: 'insideTop',
+          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: 12
+        }
+      }]
+    };
+    chart.setOption(option);
   }
 
-  // Méthode pour aller à la page suivante
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.paginateData();
-    }
-  }
 
-  // Méthode pour revenir à la page précédente
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.paginateData();
-    }
-  }
 }

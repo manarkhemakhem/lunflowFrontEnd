@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     if (typeof window !== 'undefined')
-    {this.loadDashboardData();};
+    {this.loadDashboardData();}
 
     this.collaboratorService.getCreationDatesHistogram().subscribe(
       (data) => {
@@ -57,15 +57,25 @@ export class DashboardComponent implements OnInit {
 
       const options = {
         title: {
-          text: 'Histogramme des Créations de Collaborateurs',
+          text: 'Évolution Trimestrielle des Collaborateurs Créés',
           left: 'center'
         },
         tooltip: {
           trigger: 'axis'
         },
+        grid: {
+          left: '10%',
+          right: '5%',
+          bottom: '20%'
+        },
         xAxis: {
           type: 'category',
-          data: dates
+          data: dates ,
+          axisLabel: {
+            interval: 0,
+            rotate: 45,
+            fontSize: 12
+          }
         },
         yAxis: {
           type: 'value'
@@ -75,7 +85,15 @@ export class DashboardComponent implements OnInit {
             name: 'Nombre de collaborateurs',
             type: 'bar',
             data: values,
-            color: '#42A5F5'
+            barWidth: '50%',
+            color: '#2475bd',
+            label: {
+              show: true,
+              position: 'insideTop',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: 12
+            }
           }
         ]
       };
@@ -117,7 +135,7 @@ export class DashboardComponent implements OnInit {
 
     const option = {
       title: {
-        text: ' Admins et Non-Admins',
+        text: 'Répartition des Collaborateurs: Admins et Non-Admins',
         left: 'center',
         textStyle: { fontSize: 18, fontWeight: 'bold' }
       },

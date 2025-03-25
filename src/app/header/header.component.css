@@ -62,24 +62,30 @@ ul li a:hover, ul li a.active {
   color: white;
 }
 
-/* Responsive Design */
-@media (max-width: 700px) {
+/* Pour les petits écrans (Mobile) */
+@media (max-width: 767px) {
   .header {
+    padding: 10px 15px; /* Réduire l'espace dans le header sur mobile */
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .header-left h1 {
-    font-size: 1.5rem;
+  .header-left h2 {
+    font-size: 24px; /* Réduire la taille du titre */
     margin-bottom: 10px;
   }
 
   ul {
-    flex-direction: column;
     width: 100%;
+    justify-content: flex-start; /* Aligner les éléments à gauche */
   }
 
   ul li {
-    margin: 10px 0;
+    margin: 10px 0; /* Espacement vertical entre les éléments du menu */
+  }
+
+  ul li a {
+    font-size: 14px;
+    padding: 8px 15px;
   }
 }
