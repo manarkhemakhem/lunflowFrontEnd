@@ -62,7 +62,6 @@ export class CollaboratorService {
   }
 
 
-
     // Get collaborators by group ID
     getCollaboratorsByGroupId(groupId: string): Observable<Collaborator[]> {
       return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);

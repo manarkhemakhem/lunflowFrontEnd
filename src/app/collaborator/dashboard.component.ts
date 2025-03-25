@@ -15,7 +15,8 @@ import { HeaderComponent } from "../header/header.component";
 export class DashboardComponent implements OnInit {
 
   @ViewChild('DoughnutChart', { static: true })    DoughnutChartElement!: ElementRef;
-
+  @ViewChild('histogramChart', { static: false }) chartElement!: ElementRef;
+  creationHistogram: { [date: string]: number } = {};
   totalCollaborators: number = 0;
   totalAdmins: number = 0;
   totalNotAdmins: number = 0;
@@ -27,13 +28,60 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     if (typeof window !== 'undefined')
-    {this.loadDashboardData();}}
+    {this.loadDashboardData();};
+
+    this.collaboratorService.getCreationDatesHistogram().subscribe(
+      (data) => {
+        this.creationHistogram = data;
+        this.loadChart();
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération de l’histogramme:', error);
+      }
+    );
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.checkAndUpdateCharts();
-    }, 500); // Attendre un peu avant d'afficher les graphiques
-  }
+    }, 500);
+    if (Object.keys(this.creationHistogram).length > 0) {
+      this.loadChart();
+    }  }
+    private loadChart(): void {
+      if (!this.chartElement) return;
+
+      const chartInstance = echarts.init(this.chartElement.nativeElement);
+      const dates = Object.keys(this.creationHistogram);
+      const values = Object.values(this.creationHistogram);
+
+      const options = {
+        title: {
+          text: 'Histogramme des Créations de Collaborateurs',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        xAxis: {
+          type: 'category',
+          data: dates
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            name: 'Nombre de collaborateurs',
+            type: 'bar',
+            data: values,
+            color: '#42A5F5'
+          }
+        ]
+      };
+
+      chartInstance.setOption(options);
+    }
 
   loadDashboardData(): void {
     this.collaboratorService.getAllCollaborators().subscribe(data => {
@@ -69,7 +117,7 @@ export class DashboardComponent implements OnInit {
 
     const option = {
       title: {
-        text: 'Répartition des Collaborateurs : Admins et Non-Admins',
+        text: ' Admins et Non-Admins',
         left: 'center',
         textStyle: { fontSize: 18, fontWeight: 'bold' }
       },
@@ -95,7 +143,7 @@ export class DashboardComponent implements OnInit {
         label: {
           show: true,
           position: '',
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 'bold',
           formatter: '{b}: {c} ({d}%)'
         },

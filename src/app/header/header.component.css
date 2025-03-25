@@ -9,8 +9,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #469adf;
-  color: white;
+  background-color: white;
+  color: #469adf;
   padding: 15px 20px;
   position: fixed;
   top: 0;
@@ -52,12 +52,14 @@ ul li a {
   display: block;
   border-radius: 5px;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  color : #469adf ;
 }
 
 /* Effet sur hover */
 ul li a:hover, ul li a.active {
   background-color: #77b4eb; /* Couleur de survol */
-  transform: scale(1.1); /* Agrandissement au survol */
+  transform: scale(1.1);
+  color: white;
 }
 
 /* Responsive Design */

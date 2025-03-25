@@ -30,14 +30,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Récupérer tous les groupes au démarrage
     this.groupService.getAllGroups().subscribe(
       (data) => {
         this.groups = data;
         this.totalGroups = data.length;
         this.totalPages = Math.ceil(this.totalGroups / this.itemsPerPage);
         this.paginateData();
-        // Charger les collaborateurs pour chaque groupe
+        this.loadCollaboratorsData(); 
+
       },
       (error) => {
         this.errorMessage = 'Erreur lors de la récupération des groupes';
@@ -45,10 +45,45 @@ export class GroupComponent implements OnInit, AfterViewInit {
       }
     );
   }
-
   ngAfterViewInit(): void {
-
+    if (typeof window !== 'undefined')
+    {this.loadChart();}
   }
+
+  // Méthode pour charger les données des collaborateurs par groupe
+  loadCollaboratorsData(): void {
+    this.collaboratorsCountByGroup = this.groups.map(group => ({
+      groupLabel: group.label,
+      count: group.nbCollabs  // Utiliser directement nbCollabs des groupes
+    }));
+  }
+ // Méthode pour créer le graphique avec ECharts
+ loadChart(): void {
+  const chart = echarts.init(this.chartElement.nativeElement);
+  const option = {
+    title: {
+      text: 'Nombre de Collaborateurs par Groupe',
+      subtext: 'Graphique des groupes et leur nombre de collaborateurs',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    xAxis: {
+      type: 'category',
+      data: this.collaboratorsCountByGroup.map(item => item.groupLabel),
+    },
+    yAxis: {
+      type: 'value',
+    },
+    series: [{
+      data: this.collaboratorsCountByGroup.map(item => item.count),
+      type: 'bar',
+    }]
+  };
+  chart.setOption(option);
+}
+
   // Méthode pour gérer la pagination
   paginateData(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;

@@ -41,35 +41,15 @@ export class GroupService {
 
   // Récupérer tous les groupes
   getAllGroups(): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.apiUrl}/all`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<Group[]>(`${this.apiUrl}/all`);
   }
 
   // Récupérer un groupe par son ID
+
   getGroupById(id: string): Observable<Group> {
-    return this.http.get<Group>(`${this.apiUrl}/${id}`).pipe(
-      catchError(this.handleError)
-    );
-  } 
-
-  // Récupérer la liste des collaborateurs d'un groupe
-  getCollaboratorList(groupId: string): Observable<string[] | null> {
-    return this.http.get<string[]>(`${this.apiUrl}/${groupId}/collaborators`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<Group>(`${this.apiUrl}/${id}`);
   }
 
-  // Récupérer les détails des collaborateurs à partir de la liste des IDs
-  getCollaboratorDetails(collabIds: string[]): Observable<Collaborator[] | null> {
-    if (!collabIds || collabIds.length === 0) {
-      return throwError('La liste des collaborateurs est vide.');
-    }
-
-    return this.http.post<Collaborator[]>(`${this.apiUrl}/collaborators/details`, collabIds).pipe(
-      catchError(this.handleError)
-    );
-  }
 
   // Gestionnaire d'erreurs pour les appels HTTP
   private handleError(error: HttpErrorResponse) {
@@ -85,5 +65,11 @@ export class GroupService {
 
     console.error(errorMessage);
     return throwError(() => new Error(errorMessage));
+  }
+
+
+
+  getCollaboratorsByGroup(groupId: string): Observable<Collaborator[]> {
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/groups/${groupId}/collaborators`);
   }
 }
