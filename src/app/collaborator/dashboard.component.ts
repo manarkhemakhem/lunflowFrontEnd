@@ -16,8 +16,8 @@ export class DashboardComponent implements OnInit {
 
   @ViewChild('DoughnutChart', { static: true })    DoughnutChartElement!: ElementRef;
   @ViewChild('histogramChart', { static: false }) chartElement!: ElementRef;
-  @ViewChild('onlineStatusChart', { static: false }) onlineStatusChartElement!: ElementRef;
-  @ViewChild('deletedStatusChart', { static: false }) deletedStatusChartElement!: ElementRef;
+  @ViewChild('DeletedStatusChartElement', { static: false }) DeletedStatusChartElement!: ElementRef;
+  @ViewChild('onlineChart', { static: false }) onlineChart!: ElementRef;
 
 
 
@@ -28,9 +28,11 @@ export class DashboardComponent implements OnInit {
   collaborators: Collaborator[] = [];
   admins: Collaborator[] = [];
   notAdmins: Collaborator[] = [];
-  onlineStatusMap: Map<string, boolean> = new Map();
-  deletedStatusMap: Map<string, boolean> = new Map();
+  totalDeleted: number = 0;
+  totalNotDeleted: number = 0;
 
+  totalOnline: number = 0;
+  totalNotOnline: number = 0;
 
 
   constructor(private collaboratorService: CollaboratorService, private cdr: ChangeDetectorRef , private router: Router) { }
@@ -112,31 +114,135 @@ export class DashboardComponent implements OnInit {
       chartInstance.setOption(options);
     }
 
-  loadDashboardData(): void {
-    this.collaboratorService.getAllCollaborators().subscribe(data => {
-      this.collaborators = data;
-      this.totalCollaborators = this.collaborators.length;
-      this.checkAndUpdateCharts();
-    });
+    loadDashboardData(): void {
+      // Appeler tous les services en une fois pour réduire les appels API
+      this.collaboratorService.getAllCollaborators().subscribe(data => {
+        this.collaborators = data;
+        this.totalCollaborators = this.collaborators.length;
 
-    this.collaboratorService.getAllAdmin().subscribe(data => {
-      this.admins = data;
-      this.totalAdmins = this.admins.length;
-      this.checkAndUpdateCharts();
-    });
+        // Calcul des admins, non-admins, supprimés, non supprimés, en ligne, non en ligne
+        this.admins = this.collaborators.filter(collab => collab.admin === true);
+        this.notAdmins = this.collaborators.filter(collab => collab.admin === false);
+        this.totalAdmins = this.admins.length;
+        this.totalNotAdmins = this.notAdmins.length;
 
-    this.collaboratorService.getAllNotAdmin().subscribe(data => {
-      this.notAdmins = data;
-      this.totalNotAdmins = this.notAdmins.length;
-      this.checkAndUpdateCharts();
-    });
+        this.totalDeleted = this.collaborators.filter(collab => collab.deleted === true).length;
+        this.totalNotDeleted = this.collaborators.filter(collab => collab.deleted === false).length;
+
+        this.totalOnline = this.collaborators.filter(collab => collab.OnLine === true).length;
+        this.totalNotOnline = this.collaborators.filter(collab => collab.OnLine === false).length;
+
+        console.log("Supprimés:", this.totalDeleted, "Non Supprimés:", this.totalNotDeleted);
+        console.log("En ligne:", this.totalOnline, "Non En ligne:", this.totalNotOnline);
+
+        // Mettre à jour les graphiques après avoir tout calculé
+        this.updateDeletedStatusChart();
+        this.updateOnlineStatusChart();
+        this.updateDoughnutChart();
+      });
+
   }
 
 
 
+
+
+
+  updateDeletedStatusChart(): void {
+    if (!this.DeletedStatusChartElement?.nativeElement) return;
+
+    const chart = echarts.init(this.DeletedStatusChartElement.nativeElement);
+
+    const option = {
+      title: {
+        text: 'État des Collaborateurs',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
+      },
+      tooltip: { trigger: 'axis' },
+      grid: {
+        left: '10%',
+        right: '5%',
+        bottom: '10%',
+        top : '20%'
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Supprimés', 'Non Supprimés'],
+        axisLabel: { fontSize: 14, fontWeight: 'bold' }
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        type: 'bar',
+        data: [
+          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#77b4eb' } },
+          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#2475bd' } }
+        ],
+        barWidth: '50%',
+        label: {
+          show: true,
+          position: 'insideTop',
+          fontSize: 12,
+          fontWeight: 'bold'
+        }
+      }]
+    };
+
+    chart.setOption(option);
+  }
+
+  updateOnlineStatusChart(): void {
+    if (!this.onlineChart?.nativeElement) return;
+
+    const chart = echarts.init(this.onlineChart.nativeElement);
+
+    const option = {
+      title: {
+        text: 'État des Collaborateurs',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} ({d}%)'  // Affiche les données sous forme de pourcentage
+      },
+      legend: {
+        orient: 'horizontal',
+        bottom: '10%',
+        data: ['En ligne', 'Non En ligne'],
+        textStyle: { fontSize: 12, fontWeight: 'bold' }
+      },
+      series: [
+        {
+          type: 'pie',  // Type de graphique changé en 'pie'
+          radius: ['50%', '50%'],  // Ceci crée un cercle parfait
+          center: ['50%', '50%'],  // Centrer le graphique
+          data: [
+            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#77b4eb' } },
+            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#2475bd' } }
+          ],
+          label: {
+            show: true,
+            fontSize: 12,
+            fontWeight: 'bold',
+            formatter: '{b}: {c} ({d}%)'  // Affiche également le pourcentage dans le label
+          },
+          labelLine: {
+            show: true
+          }
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  }
+
+
   checkAndUpdateCharts(): void {
     if (this.totalCollaborators > 0) {
-      this.updateDoughnutChart(); // Calling the new method
+      this.updateDoughnutChart();
     }
   }
 

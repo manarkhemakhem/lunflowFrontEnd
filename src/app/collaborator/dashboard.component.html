@@ -25,6 +25,7 @@
   </div>
 
   <div class="chart-container">
+    <!-- Première ligne de graphiques -->
     <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
       <div #DoughnutChart class="chart" style="height: 400px;"></div>
@@ -34,5 +35,17 @@
       <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
       <div #histogramChart class="chart" style="height: 400px;"></div>
     </div>
+
+    <!-- Deuxième ligne de graphiques -->
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
+      <div #DeletedStatusChartElement class="chart" style="height: 400px;"></div>
+    </div>
+
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
+      <div #onlineChart class="chart" style="height: 400px;"></div>
+    </div>
   </div>
+
 </div>

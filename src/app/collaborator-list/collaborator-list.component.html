@@ -1,31 +1,38 @@
 <app-header></app-header>
 
-
-
 <div class="dashboard-container">
-<h2>Liste des Collaborateurs</h2>
-<!-- Pagination -->
-<div class="pagination">
-  <!-- Précédent -->
-  <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
-    <i class="fas fa-chevron-left"></i>
-  </button>
+  <h2>Liste des Collaborateurs</h2>
 
-  <!-- Affichage de la page actuelle -->
-  <span>Page {{ currentPage }} sur {{ getTotalPages() }}</span>
+  <!-- Pagination -->
+  <div class="pagination">
+    <!-- Précédent -->
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" class="pagination-btn">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span>Page {{ currentPage }} sur {{ getTotalPages() }}</span>
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === getTotalPages()" class="pagination-btn">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
 
-  <!-- Suivant -->
-  <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === getTotalPages()" class="pagination-btn">
-    <i class="fas fa-chevron-right"></i>
-  </button>
-</div>
-<!-- Section des collaborateurs -->
-<div class="cards-container" *ngIf="collaborators.length > 0">
-  <div class="card" [ngStyle]="{'border-color': '#42A5F5'}" *ngFor="let collaborator of paginatedCollaborators">
-    <i class="fas fa-user" style="font-size: 24px; color: #42A5F5;"></i>
-    <p>{{ collaborator.fullname }}</p>
+  <!-- Liste des collaborateurs -->
+  <div class="cards-container" *ngIf="collaborators.length > 0">
+    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}" *ngFor="let collaborator of paginatedCollaborators" (click)="openProfile(collaborator)">
+      <i class="fas fa-user" style="font-size: 24px; color: #42A5F5;"></i>
+      <p>{{ collaborator.fullname }}</p>
+    </div>
   </div>
 </div>
 
-
+<!-- Modal (popup) pour afficher les détails du collaborateur -->
+<div *ngIf="isModalOpen" class="modal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <span class="close-btn" (click)="closeModal()">×</span>
+    <h3>Détails du Collaborateur</h3>
+    <p><strong>Nom:</strong> {{ selectedCollaborator.fullname }}</p>
+    <p><strong>Email:</strong> {{ selectedCollaborator.email }}</p>
+    <p><strong>Status supprimé:</strong> {{ selectedCollaborator.deleted ? 'Oui' : 'Non' }}</p>
+    <p><strong>En ligne:</strong> {{ selectedCollaborator.online ? 'Oui' : 'Non' }}</p>
+    <p><strong>Rôle:</strong> {{ selectedCollaborator.admin ? 'Admin' : 'Non-Admin' }}</p>
+  </div>
 </div>

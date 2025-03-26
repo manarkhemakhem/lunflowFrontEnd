@@ -50,7 +50,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     {this.loadChart();}
     setTimeout(() => {
       this.loadChart();
-    }, 300);
+    }, 500);
   }
 
   // Méthode pour charger les données des collaborateurs par groupe

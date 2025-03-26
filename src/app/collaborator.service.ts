@@ -12,7 +12,7 @@ export interface Collaborator {
   admin: boolean;
   idPicture: string;
   deleted: boolean;
-  onLine: boolean;
+  OnLine: boolean;
 }
 
 @Injectable({
@@ -64,18 +64,14 @@ export class CollaboratorService {
   }
 
 
-    // Get collaborators by group ID
     getCollaboratorsByGroupId(groupId: string): Observable<Collaborator[]> {
       return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
     }
-// Récupérer l'état en ligne pour tous les collaborateurs
 getAllCollaboratorsOnlineStatus(): Observable<Map<string, boolean>> {
   return this.http.get<Map<string, boolean>>(`${this.apiUrl}/online-status`);
 }
 
-// Récupérer le statut de suppression pour tous les collaborateurs
 getAllCollaboratorsDeletedStatus(): Observable<Map<string, boolean>> {
   return this.http.get<Map<string, boolean>>(`${this.apiUrl}/deleted`);
 }
-
-  }
+}
