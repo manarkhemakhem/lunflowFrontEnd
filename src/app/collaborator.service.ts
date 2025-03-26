@@ -12,7 +12,7 @@ export interface Collaborator {
   admin: boolean;
   idPicture: string;
   deleted: boolean;
-  OnLine: boolean;
+  onLine: boolean;
 }
 
 @Injectable({

@@ -28,11 +28,15 @@
 <div *ngIf="isModalOpen" class="modal" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <span class="close-btn" (click)="closeModal()">×</span>
+    <div class="icon">
+      <i class="fas fa-user-circle"></i> <!-- Icône ici -->
+    </div>
     <h3>Détails du Collaborateur</h3>
     <p><strong>Nom:</strong> {{ selectedCollaborator.fullname }}</p>
     <p><strong>Email:</strong> {{ selectedCollaborator.email }}</p>
     <p><strong>Status supprimé:</strong> {{ selectedCollaborator.deleted ? 'Oui' : 'Non' }}</p>
     <p><strong>En ligne:</strong> {{ selectedCollaborator.online ? 'Oui' : 'Non' }}</p>
     <p><strong>Rôle:</strong> {{ selectedCollaborator.admin ? 'Admin' : 'Non-Admin' }}</p>
+    <button class="exit-btn" (click)="closeModal()">Exit</button>
   </div>
 </div>

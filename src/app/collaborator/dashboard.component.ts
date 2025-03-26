@@ -129,8 +129,8 @@ export class DashboardComponent implements OnInit {
         this.totalDeleted = this.collaborators.filter(collab => collab.deleted === true).length;
         this.totalNotDeleted = this.collaborators.filter(collab => collab.deleted === false).length;
 
-        this.totalOnline = this.collaborators.filter(collab => collab.OnLine === true).length;
-        this.totalNotOnline = this.collaborators.filter(collab => collab.OnLine === false).length;
+        this.totalOnline = this.collaborators.filter(collab => collab.onLine === true).length;
+        this.totalNotOnline = this.collaborators.filter(collab => collab.onLine === false).length;
 
         console.log("Supprimés:", this.totalDeleted, "Non Supprimés:", this.totalNotDeleted);
         console.log("En ligne:", this.totalOnline, "Non En ligne:", this.totalNotOnline);
@@ -210,15 +210,15 @@ export class DashboardComponent implements OnInit {
       },
       legend: {
         orient: 'horizontal',
-        bottom: '10%',
+        bottom: '3%',
         data: ['En ligne', 'Non En ligne'],
         textStyle: { fontSize: 12, fontWeight: 'bold' }
       },
       series: [
         {
-          type: 'pie',  // Type de graphique changé en 'pie'
-          radius: ['50%', '50%'],  // Ceci crée un cercle parfait
-          center: ['50%', '50%'],  // Centrer le graphique
+          type: 'pie',  // Type de graphique reste en 'pie' mais avec des ajustements pour faire un donut
+          radius: ['40%', '70%'],
+          center: ['50%', '50%'],
           data: [
             { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#77b4eb' } },
             { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#2475bd' } }
@@ -238,7 +238,6 @@ export class DashboardComponent implements OnInit {
 
     chart.setOption(option);
   }
-
 
   checkAndUpdateCharts(): void {
     if (this.totalCollaborators > 0) {
