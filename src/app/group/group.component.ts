@@ -16,10 +16,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   @ViewChild('collaboratorsChart', { static: false }) chartElement!: ElementRef;
   @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;  // Référence pour le Doughnut chart
-  
+
   groups: Group[] = [];
   totalGroups: number = 0;
   collaboratorsCountByGroup: { groupLabel: string, count: number }[] = [];  // Remplacer `groupId` par `groupLabel`
+  groupsByAddress: { address: string, count: number }[] = [];  // Compter les groupes par adresse
+
   errorMessage: string = '';  // Déclaration de errorMessage pour gérer les erreurs
   currentPage: number = 1;  // Page actuelle
   itemsPerPage: number = 5;  // Nombre d'éléments par page
@@ -38,6 +40,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         this.totalGroups = data.length;
 
         this.loadCollaboratorsData();
+        this.loadGroupsByAddress();
 
       },
 
@@ -48,10 +51,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
     );
   }
   ngAfterViewInit(): void {
-    if (typeof window !== 'undefined')
-    {this.loadChart();}
+    if (typeof window !== 'undefined') {
+      this.loadChart();
+      this.loadAddressChart();  // Charger le graphique Doughnut après la vue initialisée
+    }
     setTimeout(() => {
       this.loadChart();
+      this.loadAddressChart();
     }, 500);
   }
 
@@ -63,6 +69,71 @@ export class GroupComponent implements OnInit, AfterViewInit {
     }));
 
   }
+  // Méthode pour charger le nombre de groupes par adresse
+  loadGroupsByAddress(): void {
+    // Regrouper les groupes par adresse
+    const addressMap = this.groups.reduce((acc, group) => {
+      const address = group.address || 'Inconnue';  // S'il n'y a pas d'adresse, on utilise 'Inconnue'
+      if (!acc[address]) {
+        acc[address] = 0;
+      }
+      acc[address]++;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Convertir le map en un tableau de {address, count}
+    this.groupsByAddress = Object.keys(addressMap).map(address => ({
+      address,
+      count: addressMap[address]
+    }));
+  }
+
+   // Méthode pour charger le graphique Doughnut des groupes par adresse
+   loadAddressChart(): void {
+    const chart = echarts.init(this.addressChartElement.nativeElement);
+    const option = {
+      title: {
+        text: 'Répartition des Groupes par Adresse',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} ({d}%)'
+      },
+      legend: {
+        orient: 'horizontal',
+        bottom: '5%',
+        data: this.groupsByAddress.map(item => item.address),
+        textStyle: {
+          fontSize: 12,
+          fontWeight: 'bold'
+        }
+      },
+      series: [{
+        name: 'Groupes',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['50%', '50%'],
+        data: this.groupsByAddress.map(item => ({
+          value: item.count,
+          name: item.address,
+          itemStyle: { color: '#42A5F5' }
+        })),
+        label: {
+          show: true,
+          position: 'center',
+          fontSize: 12,
+          fontWeight: 'bold',
+          formatter: '{b}: {c} ({d}%)'
+        },
+        labelLine: {
+          show: true
+        }
+      }]
+    };
+    chart.setOption(option);
+  }
+
   loadChart(): void {
     const chart = echarts.init(this.chartElement.nativeElement);
     const option = {
