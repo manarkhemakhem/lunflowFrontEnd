@@ -225,6 +225,8 @@ export class DashboardComponent implements OnInit {
           ],
           label: {
             show: true,
+            position: 'center',
+
             fontSize: 12,
             fontWeight: 'bold',
             formatter: '{b}: {c} ({d}%)'  // Affiche également le pourcentage dans le label

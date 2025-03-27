@@ -10,17 +10,20 @@
         <h3>Nombre Total de Groupes</h3>
         <p>{{ totalGroups }}</p>
     </div>
+  </div>
+    <div class="chart-container">
+      <!-- Première ligne de graphiques -->
+      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+        <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
+        <div #collaboratorsChart style="height: 400px;"></div>
+      </div>
 
-    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
-      <div #collaboratorsChart style="height: 400px;"></div>
+      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+        <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
+        <div #addressChart style="height: 400px; "></div>
+      </div>
+
+
     </div>
-
-    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
-<!-- Graphique Doughnut pour les groupes par adresse -->
-<div #addressChart style="height: 300px; width: 100%;"></div>
-    </div>
-
 
 </div>

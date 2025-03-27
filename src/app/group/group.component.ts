@@ -88,21 +88,27 @@ export class GroupComponent implements OnInit, AfterViewInit {
     }));
   }
 
-   // Méthode pour charger le graphique Doughnut des groupes par adresse
-   loadAddressChart(): void {
+  loadAddressChart(): void {
     const chart = echarts.init(this.addressChartElement.nativeElement);
+
+    // Palette de couleurs bleues
+    const blueColors = ['#42A5F5', '#77b4eb', '#87bded', '#2475bd', '#1565C0', '#0D47A1'];
+
     const option = {
       title: {
-        text: 'Répartition des Groupes par Adresse',
-        left: 'center'
+        text: 'Répartition des Groupes par Pays',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
+
       },
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} ({d}%)'
       },
       legend: {
-        orient: 'horizontal',
-        bottom: '5%',
+        orient: 'vertical',
+        left: 'left',
+        bottom: '3%',
         data: this.groupsByAddress.map(item => item.address),
         textStyle: {
           fontSize: 12,
@@ -110,14 +116,15 @@ export class GroupComponent implements OnInit, AfterViewInit {
         }
       },
       series: [{
-        name: 'Groupes',
         type: 'pie',
         radius: ['40%', '70%'],
         center: ['50%', '50%'],
-        data: this.groupsByAddress.map(item => ({
+        data:
+        this.groupsByAddress.map((item, index) =>
+          ({
           value: item.count,
           name: item.address,
-          itemStyle: { color: '#42A5F5' }
+          itemStyle: { color: blueColors[index % blueColors.length] }
         })),
         label: {
           show: true,
