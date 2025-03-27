@@ -74,4 +74,12 @@ getAllCollaboratorsOnlineStatus(): Observable<Map<string, boolean>> {
 getAllCollaboratorsDeletedStatus(): Observable<Map<string, boolean>> {
   return this.http.get<Map<string, boolean>>(`${this.apiUrl}/deleted`);
 }
+searchByFullname(fullname: string): Observable<Collaborator[]> {
+  if (!fullname.trim()) {
+    throw new Error("Le nom ne peut pas être vide ou null");
+  }
+
+  return this.http.get<Collaborator[]>(`${this.apiUrl}/search?fullname=${fullname.trim()}`);
+}
+
 }

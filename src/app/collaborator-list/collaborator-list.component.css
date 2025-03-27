@@ -46,20 +46,23 @@ h2 {
 
 
 .card {
+  align-items: center;
+  justify-content: center;
   border: 2px solid; /* Bordure de la carte */
   border-radius: 8px;
   padding: 30px;
   width: 15%;
+  border: 2px solid #42A5F5;
+  background-color: white;
+  cursor: pointer;
+
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
   margin-top: 10px;
 }
 
-.card:hover {
-  transform: translateY(-5px); /* Slight lift on hover */
-}
-/* Appliquer un style plus beau et gras au nom du collaborateur */
+
 .card p {
   font-weight: bold;
   font-size: 18px;
@@ -68,9 +71,27 @@ h2 {
   margin-top: 10px;
 }
 .card:hover {
-  background-color: #77b4eb;
-  transform: scale(1.1);
+  transform: translateY(-5px) scale(1.1);
+  background-color: #bfd8ef;
   color: white;
+}
+.card:hover .user-icon {
+  color: white;
+}
+.card:hover p {
+  color: white;
+}
+.card p {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #333;
+  transition: color 0.3s ease-in-out;
+}
+.user-icon {
+  font-size: 24px;
+  color: #42A5F5;
+  transition: color 0.3s ease-in-out;
 }
 .pagination {
   display: flex;
@@ -192,4 +213,56 @@ h2 {
 
 .exit-btn:hover {
   background-color: #1e88e5; /* Couleur plus foncée au survol */
+}
+h3{
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #2C3E50;
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center; /* Centre horizontalement */
+  align-items: center;
+  margin: 20px 0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  border-radius: 25px;
+  padding: 10px 15px;
+  width: 50%;
+  max-width: 400px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+.search-icon {
+  font-size: 18px;
+  color: #888;
+  margin-right: 10px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Effet au focus : bordure et ombre bleues */
+.search-box:focus-within {
+  border: 2px solid #007bff; /* Bordure bleue */
+  box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.6); /* Ombre bleue */
 }

@@ -39,7 +39,10 @@ h2 {
 }
 
 .card:hover {
-  transform: translateY(-5px); /* Slight lift on hover */
+  transform: translateY(-5px);
+    background-color: #bfd8ef;
+    transform: scale(1.1);
+    color: white;
 }
 
 .card i {
@@ -68,7 +71,7 @@ h2 {
 }
 
 .chart-card {
-  width: 47%; /* Chaque carte prend 48% de la largeur de la ligne, permettant 2 cartes par ligne */
+  width: 47%;
   min-width: 300px; /* Évite que les cartes deviennent trop petites */
   background: white;
   border-radius: 10px;

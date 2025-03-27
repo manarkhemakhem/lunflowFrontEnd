@@ -3,11 +3,11 @@ import { CollaboratorService } from '../collaborator.service';
 import { Router } from '@angular/router';
 import { HeaderComponent } from "../header/header.component";
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-collaborator-list',
   standalone: true,
-  imports: [HeaderComponent,CommonModule],
+  imports: [HeaderComponent,CommonModule,FormsModule],
   templateUrl: './collaborator-list.component.html',
   styleUrls: ['./collaborator-list.component.css']
 })
@@ -17,8 +17,11 @@ export class CollaboratorListComponent implements OnInit {
   currentPage: number = 1;
   paginatedCollaborators: any[] = [];
 
-  isModalOpen: boolean = false; // Pour gérer l'ouverture et la fermeture du modal
-  selectedCollaborator: any = null; // Collaborateur sélectionné pour afficher dans le modal
+  isModalOpen: boolean = false;
+  selectedCollaborator: any = null;
+
+  filteredCollaborators: any[] = [];
+  searchTerm: string = '';
 
 
   constructor(
@@ -27,14 +30,15 @@ export class CollaboratorListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getCollaborators(); // Récupération des collaborateurs lors de l'initialisation
+    this.getCollaborators();
   }
 
-  // Récupère la liste des collaborateurs depuis le service
   getCollaborators(): void {
     this.collaboratorService.getAllCollaborators().subscribe(
       (data) => {
-        this.collaborators = data; // Assigner les collaborateurs récupérés
+        this.collaborators = data;
+        this.filteredCollaborators = data;
+        this.updatePaginatedCollaborators();
       },
       (error) => {
         console.error('Erreur de chargement des collaborateurs', error);
@@ -42,12 +46,23 @@ export class CollaboratorListComponent implements OnInit {
     );
   }
 
+  searchCollaborators(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredCollaborators = this.collaborators;
+    } else {
+      this.filteredCollaborators = this.collaborators.filter(collaborator =>
+        collaborator.fullname.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+    this.currentPage = 1;
+    this.updatePaginatedCollaborators();
+  }
+
   updatePaginatedCollaborators(): void {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.paginatedCollaborators = this.collaborators.slice(startIndex, endIndex);
+    this.paginatedCollaborators = this.filteredCollaborators.slice(startIndex, endIndex);
   }
-
   goToPage(page: number): void {
     if (page > 0 && page <= this.getTotalPages()) {
       this.currentPage = page;

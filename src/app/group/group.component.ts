@@ -15,6 +15,8 @@ import * as echarts from 'echarts';
 export class GroupComponent implements OnInit, AfterViewInit {
 
   @ViewChild('collaboratorsChart', { static: false }) chartElement!: ElementRef;
+  @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;  // Référence pour le Doughnut chart
+  
   groups: Group[] = [];
   totalGroups: number = 0;
   collaboratorsCountByGroup: { groupLabel: string, count: number }[] = [];  // Remplacer `groupId` par `groupLabel`
