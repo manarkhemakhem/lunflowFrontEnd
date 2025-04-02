@@ -4,6 +4,7 @@ import { Collaborator, CollaboratorService } from '../collaborator.service';
 import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
 import { HeaderComponent } from "../header/header.component";
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -115,36 +116,47 @@ export class DashboardComponent implements OnInit {
     }
 
     loadDashboardData(): void {
-      // Appeler tous les services en une fois pour réduire les appels API
       this.collaboratorService.getAllCollaborators().subscribe(data => {
         this.collaborators = data;
         this.totalCollaborators = this.collaborators.length;
+        this.collaboratorService.getAllNotAdmin().subscribe(
+              (res) => {
 
-        // Calcul des admins, non-admins, supprimés, non supprimés, en ligne, non en ligne
-        this.admins = this.collaborators.filter(collab => collab.admin === true);
-        this.notAdmins = this.collaborators.filter(collab => collab.admin === false);
-        this.totalAdmins = this.admins.length;
-        this.totalNotAdmins = this.notAdmins.length;
+                this.totalNotAdmins = res.length;
+              }
+            );
+            this.collaboratorService.getAllAdmin().subscribe(
+              (res) => {
+
+                this.totalAdmins = res.length;
+              }
+            );
+            forkJoin({
+              online: this.collaboratorService.getCollaboratorsOnline(),
+              offline: this.collaboratorService.getCollaboratorsOffline()
+            }).subscribe(
+              ({ online, offline }) => {
+                this.totalOnline = online.length;
+                this.totalNotOnline = offline.length;
+
+                // Mettre à jour le graphique après avoir chargé toutes les données
+                this.updateOnlineStatusChart();
+              },
+              error => {
+                console.error("Erreur lors du chargement des données du tableau de bord", error);
+              }
+            );
+
 
         this.totalDeleted = this.collaborators.filter(collab => collab.deleted === true).length;
         this.totalNotDeleted = this.collaborators.filter(collab => collab.deleted === false).length;
 
-        this.totalOnline = this.collaborators.filter(collab => collab.onLine === true).length;
-        this.totalNotOnline = this.collaborators.filter(collab => collab.onLine === false).length;
-
-        console.log("Supprimés:", this.totalDeleted, "Non Supprimés:", this.totalNotDeleted);
-        console.log("En ligne:", this.totalOnline, "Non En ligne:", this.totalNotOnline);
-
-        // Mettre à jour les graphiques après avoir tout calculé
         this.updateDeletedStatusChart();
         this.updateOnlineStatusChart();
         this.updateDoughnutChart();
       });
 
   }
-
-
-
 
 
 
@@ -194,6 +206,7 @@ export class DashboardComponent implements OnInit {
   }
 
   updateOnlineStatusChart(): void {
+
     if (!this.onlineChart?.nativeElement) return;
 
     const chart = echarts.init(this.onlineChart.nativeElement);
@@ -216,7 +229,7 @@ export class DashboardComponent implements OnInit {
       },
       series: [
         {
-          type: 'pie',  // Type de graphique reste en 'pie' mais avec des ajustements pour faire un donut
+          type: 'pie',
           radius: ['40%', '70%'],
           center: ['50%', '50%'],
           data: [
@@ -229,7 +242,7 @@ export class DashboardComponent implements OnInit {
 
             fontSize: 12,
             fontWeight: 'bold',
-            formatter: '{b}: {c} ({d}%)'  // Affiche également le pourcentage dans le label
+            formatter: '{b}: {c} ({d}%)'
           },
           labelLine: {
             show: true

@@ -15,18 +15,14 @@ import * as echarts from 'echarts';
 export class GroupComponent implements OnInit, AfterViewInit {
 
   @ViewChild('collaboratorsChart', { static: false }) chartElement!: ElementRef;
-  @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;  // Référence pour le Doughnut chart
+  @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;
 
   groups: Group[] = [];
   totalGroups: number = 0;
-  collaboratorsCountByGroup: { groupLabel: string, count: number }[] = [];  // Remplacer `groupId` par `groupLabel`
-  groupsByAddress: { address: string, count: number }[] = [];  // Compter les groupes par adresse
+  collaboratorsCountByGroup: { groupLabel: string, count: number }[] = [];
+  groupsByAddress: { address: string, count: number }[] = [];
 
-  errorMessage: string = '';  // Déclaration de errorMessage pour gérer les erreurs
-  currentPage: number = 1;  // Page actuelle
-  itemsPerPage: number = 5;  // Nombre d'éléments par page
-  totalPages: number = 1;  // Nombre total de pages
-  paginatedGroups: Group[] = [];  // Liste des groupes à afficher pour la page actuelle
+  errorMessage: string = '';
 
   constructor(
     private groupService: GroupService,
@@ -34,6 +30,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    
     this.groupService.getAllGroups().subscribe(
       (data) => {
         this.groups = data;
@@ -65,15 +62,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
   loadCollaboratorsData(): void {
     this.collaboratorsCountByGroup = this.groups.map(group => ({
       groupLabel: group.label,
-      count: group.nbCollabs  // Utiliser directement nbCollabs des groupes
+      count: group.nbCollabs
     }));
 
   }
-  // Méthode pour charger le nombre de groupes par adresse
   loadGroupsByAddress(): void {
-    // Regrouper les groupes par adresse
     const addressMap = this.groups.reduce((acc, group) => {
-      const address = group.address || 'Inconnue';  // S'il n'y a pas d'adresse, on utilise 'Inconnue'
+      const address = group.address || 'Inconnue';
       if (!acc[address]) {
         acc[address] = 0;
       }

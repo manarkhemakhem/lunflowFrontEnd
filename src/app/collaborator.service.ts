@@ -67,10 +67,13 @@ export class CollaboratorService {
     getCollaboratorsByGroupId(groupId: string): Observable<Collaborator[]> {
       return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
     }
-getAllCollaboratorsOnlineStatus(): Observable<Map<string, boolean>> {
-  return this.http.get<Map<string, boolean>>(`${this.apiUrl}/online-status`);
-}
+    getCollaboratorsOnline(): Observable<Collaborator[]> {
+      return this.http.get<Collaborator[]>(`${this.apiUrl}/onLine`);
+    }
 
+    getCollaboratorsOffline(): Observable<Collaborator[]> {
+      return this.http.get<Collaborator[]>(`${this.apiUrl}/offLine`);
+    }
 getAllCollaboratorsDeletedStatus(): Observable<Map<string, boolean>> {
   return this.http.get<Map<string, boolean>>(`${this.apiUrl}/deleted`);
 }
