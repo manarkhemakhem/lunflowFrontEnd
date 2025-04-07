@@ -5,11 +5,16 @@
 
 
 <div class="statistics">
-  <div class="card" [ngStyle]="{'border-color': '#42A5F5'}" (click)="navigateToCollaboratorList()">
+  <div class="card" style="position: relative;" [ngStyle]="{ 'border-color': '#42A5F5' }">
+    <!-- Icône de liste en haut à droite -->
+    <i class="fas fa-list list-icon" title="Voir la liste" (click)="navigateToCollaboratorList()"></i>
+
+    <!-- Icône principale -->
     <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
     <h3>Collaborateurs</h3>
     <p>{{ totalCollaborators }}</p>
   </div>
+
 
     <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-user-shield" style="font-size: 24px; color: #42A5F5;"></i>
@@ -24,24 +29,24 @@
   </div>
 
   <div class="gridcard">
-    <div class="card"  [ngStyle]="{'border-color': '#42A5F5'}">
+    <div class="card1"  [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
 
-      <div #DoughnutChart class="chart" style="height: 100;" ></div>
+      <div #DoughnutChart class="chart" style="height:400px;" ></div>
     </div>
 
-    <div class="card " [ngStyle]="{'border-color': '#42A5F5'}">
+    <div class="card1 " [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
       <div #histogramChart class="chart" style="height: 400px;"></div>
     </div>
   </div>
   <div class="gridcard">
-    <div class="card " [ngStyle]="{'border-color': '#42A5F5'}">
+    <div class="card1 " [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
       <div #DeletedStatusChartElement class="chart" style="height: 400px;"></div>
     </div>
 
-    <div class="card " [ngStyle]="{'border-color': '#42A5F5'}">
+    <div class="card1 " [ngStyle]="{'border-color': '#42A5F5'}">
       <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
       <div #onlineChart class="chart" style="height: 400px;"></div>
     </div>

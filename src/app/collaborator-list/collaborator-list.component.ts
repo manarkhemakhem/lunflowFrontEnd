@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CollaboratorService } from '../collaborator.service';
+import { CollaboratorService } from '../services/collaborator.service';
 import { Router } from '@angular/router';
 import { HeaderComponent } from "../header/header.component";
 import { CommonModule } from '@angular/common';

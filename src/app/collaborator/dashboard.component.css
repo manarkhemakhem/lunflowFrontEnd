@@ -1,108 +1,44 @@
 .dashboard-container {
   margin: 20px;
-  font-family: 'Lato', sans-serif;
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 80px; /* Ajouter un espace entre le header et le tableau de bord */
 }
+
 .statistics {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  margin-top: 20px;
+  margin-bottom: 30px;
 }
-h2 {
-  font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 500;
-  color: #2C3E50;
-  text-align: center;
-  margin-bottom: 30px; /* Espacement sous le titre pour ne pas le coller au contenu suivant */
-  letter-spacing: 1px; /* Espacement léger entre les lettres pour plus de clarté */
-  text-transform: uppercase; /* Transformer le titre en majuscules pour un effet plus formel */
-  border-bottom: 3px solid #3498db; /* Ligne fine et colorée sous le titre pour un accent visuel */
-  padding-bottom: 10px; /* Un peu d'espace sous la bordure pour l'aérer */
-  transition: all 0.3s ease; /* Effet fluide de transition pour une interaction au survol */
-}
-
 
 .card {
-  border: 2px solid;
-  border-radius: 8px;
+  flex: 1;
+  margin: 10px;
   padding: 20px;
- width: 100%;
- height: 100%;
+  border: 1px solid #42A5F5;
+  border-radius: 8px;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+}
+
+.card1 {
+  flex: 1;
+  margin: 10px;
+  padding: 20px;
+  border: 1px solid #42A5F5;
+  border-radius: 8px;
+}
+
+.gridcard {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
-
-.card:hover {
-  transform: translateY(-5px);
-    background-color: #bfd8ef;
-    transform: scale(1.1);
-    color: white;
-}
-
-.card i {
-  margin-bottom: 10px;
-}
-
-.card h3 {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.card p {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.gridcard{
-  display :grid;
-  grid-template-columns:49vw  49vw;
-  gap:2vw
-}
-
-.chart-card {
-  width: 45%;
-  min-width: 300px;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  height: 350px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 
 .chart {
-  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.card-header i {
-  margin-right: 10px;
-}
-
-.card-header h3 {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.card-body {
-  padding: 20px;
+.list-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
 }

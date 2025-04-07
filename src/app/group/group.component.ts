@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Collaborator, CollaboratorService } from '../collaborator.service';
-import { GroupService, Group } from '../group.service';
+import { Collaborator, CollaboratorService } from '../services/collaborator.service';
+import { GroupService, Group } from '../services/group.service';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from "../header/header.component";
 import * as echarts from 'echarts';
@@ -16,6 +16,9 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   @ViewChild('collaboratorsChart', { static: false }) chartElement!: ElementRef;
   @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;
+  @ViewChild('workflowChart', { static: true }) workflowChartElement!: ElementRef;
+  @ViewChild('histogramChart', { static: false }) histogramChartElement!: ElementRef; // Ajouté
+
 
   groups: Group[] = [];
   totalGroups: number = 0;
@@ -30,7 +33,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    
+
     this.groupService.getAllGroups().subscribe(
       (data) => {
         this.groups = data;
@@ -38,6 +41,8 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
         this.loadCollaboratorsData();
         this.loadGroupsByAddress();
+        this.loadworkflowChart();
+        this.updateGroupBarChart(this.groups);
 
       },
 
@@ -55,10 +60,11 @@ export class GroupComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.loadChart();
       this.loadAddressChart();
+      this.updateGroupBarChart(this.groups); // 👈 en backup après DOM totalement prêt
+
     }, 500);
   }
 
-  // Méthode pour charger les données des collaborateurs par groupe
   loadCollaboratorsData(): void {
     this.collaboratorsCountByGroup = this.groups.map(group => ({
       groupLabel: group.label,
@@ -84,10 +90,10 @@ export class GroupComponent implements OnInit, AfterViewInit {
   }
 
   loadAddressChart(): void {
-    const chart = echarts.init(this.addressChartElement.nativeElement);
+    if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
 
-    // Palette de couleurs bleues
-    const blueColors = ['#42A5F5', '#77b4eb', '#87bded', '#2475bd', '#1565C0', '#0D47A1'];
+    const chart = echarts.init(this.addressChartElement.nativeElement);
+    const blueColors = ['#476B9E', '#DBA02E', '#2F76DB', '#867149', '#67696B'];
 
     const option = {
       title: {
@@ -101,19 +107,16 @@ export class GroupComponent implements OnInit, AfterViewInit {
         formatter: '{b}: {c} ({d}%)'
       },
       legend: {
-        orient: 'vertical',
-        left: 'left',
-        bottom: '3%',
-        data: this.groupsByAddress.map(item => item.address),
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'bold'
-        }
+        top: 'bottom',
+          left: 'center',
+
       },
       series: [{
         type: 'pie',
         radius: ['40%', '70%'],
         center: ['50%', '50%'],
+        startAngle: 180,
+        endAngle: 360,
         data:
         this.groupsByAddress.map((item, index) =>
           ({
@@ -121,22 +124,16 @@ export class GroupComponent implements OnInit, AfterViewInit {
           name: item.address,
           itemStyle: { color: blueColors[index % blueColors.length] }
         })),
-        label: {
-          show: true,
-          position: 'center',
-          fontSize: 12,
-          fontWeight: 'bold',
-          formatter: '{b}: {c} ({d}%)'
-        },
-        labelLine: {
-          show: true
-        }
+
+
       }]
     };
     chart.setOption(option);
   }
 
   loadChart(): void {
+    if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
+
     const chart = echarts.init(this.chartElement.nativeElement);
     const option = {
       title: {
@@ -178,5 +175,103 @@ export class GroupComponent implements OnInit, AfterViewInit {
     chart.setOption(option);
   }
 
+
+  loadworkflowChart(): void {
+    if (typeof window === 'undefined' || !this.workflowChartElement) return;
+
+    const chart = echarts.init(this.workflowChartElement.nativeElement);
+    const labels = this.groups.map(g => g.label);
+    const values = this.groups.map(g => g.nbWrkftype);
+
+    const option = {
+      title: {
+        text: 'Nombre de workflows par groupe',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLabel: {
+          rotate: 30
+        }
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        name: 'Workflows',
+        type: 'line',  // Utiliser un graphique en ligne
+        data: values,
+        itemStyle: {
+          color: '#42A5F5'
+        }
+      }]
+    };
+
+    chart.setOption(option);
+  }
+  updateGroupBarChart(groups: Group[]): void {
+    if (typeof window === 'undefined' || !this.histogramChartElement) return;
+
+    const chart = echarts.init(this.histogramChartElement.nativeElement);
+
+    const groupLabels = groups.map(group => group.label);
+    const currentCollabs = groups.map(group => group.nbCollabs);
+    const maxCollabs = groups.map(group => group.nbCollabsMax);
+
+    const option = {
+      title: {
+        text: 'Nombre de collaborateurs par groupe',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' }
+      },
+      legend: {
+        data: ['Collaborateurs Actuels', 'Maximum Autorisé'],
+        top: 30
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value'
+      },
+      yAxis: {
+        type: 'category',
+        data: groupLabels,
+        axisLabel: {
+          fontSize: 12,
+          fontWeight: 'bold'
+        }
+      },
+      series: [
+        {
+          name: 'Collaborateurs Actuels',
+          type: 'bar',
+          stack: 'total',
+          data: currentCollabs,
+          itemStyle: { color: '#38839C' }
+        },
+        {
+          name: 'Maximum Autorisé',
+          type: 'bar',
+          stack: 'total',
+          data: maxCollabs,
+          itemStyle: { color: '#18ABDB' }
+        }
+      ]
+    };
+
+    chart.setOption(option);
+  }
 
 }

@@ -1,0 +1,34 @@
+<app-header></app-header>
+<div class="dashboard-container">
+  <h2>Tableau de Bord des utilisateurs</h2>
+
+  <!-- Section des statistiques -->
+  <div class="statistics">
+
+    <div class="cardstat" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
+        <h3>Nombre Total de utilisateurs</h3>
+        <p>{{ totalUsers }}</p>
+    </div>
+    <div class="cardstat" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-check-circle" style="font-size: 24px; color: #42A5F5;"></i>
+      <h3>Nombre Total de Utilisateurs Confirmés</h3>
+      <p>{{ confirmedCount }}</p>
+    </div>
+  </div>
+  <div class="chart-container">
+    <!-- Première ligne de graphiques -->
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
+      <div #DoughnutChart  style="height: 400px; width:100%;"></div>
+
+    </div>
+
+    <!-- Première ligne de graphiques -->
+    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
+      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
+      <div #HistogramChart style="height: 400px; width: 100%;"></div>
+
+    </div>
+
+</div>

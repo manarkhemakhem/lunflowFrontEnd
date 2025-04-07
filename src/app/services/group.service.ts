@@ -72,4 +72,7 @@ export class GroupService {
   getCollaboratorsByGroup(groupId: string): Observable<Collaborator[]> {
     return this.http.get<Collaborator[]>(`${this.apiUrl}/groups/${groupId}/collaborators`);
   }
+  getNbWorkflowTypeByGroupId(groupId: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/${groupId}/nbwrkftype`);
+  }
 }

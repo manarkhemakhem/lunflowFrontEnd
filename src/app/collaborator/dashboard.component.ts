@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Collaborator, CollaboratorService } from '../collaborator.service';
+import { Collaborator, CollaboratorService } from '../services/collaborator.service';
 import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
 import { HeaderComponent } from "../header/header.component";
@@ -63,6 +63,7 @@ export class DashboardComponent implements OnInit {
 
 
     private loadChart(): void {
+      if (typeof window === 'undefined') return;
       if (!this.chartElement) return;
 
       const chartInstance = echarts.init(this.chartElement.nativeElement);
@@ -138,8 +139,6 @@ export class DashboardComponent implements OnInit {
               ({ online, offline }) => {
                 this.totalOnline = online.length;
                 this.totalNotOnline = offline.length;
-
-                // Mettre à jour le graphique après avoir chargé toutes les données
                 this.updateOnlineStatusChart();
               },
               error => {
@@ -161,6 +160,7 @@ export class DashboardComponent implements OnInit {
 
 
   updateDeletedStatusChart(): void {
+    if (typeof window === 'undefined') return;
     if (!this.DeletedStatusChartElement?.nativeElement) return;
 
     const chart = echarts.init(this.DeletedStatusChartElement.nativeElement);
@@ -189,7 +189,7 @@ export class DashboardComponent implements OnInit {
       series: [{
         type: 'bar',
         data: [
-          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#77b4eb' } },
+          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#db7d1d' } },
           { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#2475bd' } }
         ],
         barWidth: '50%',
@@ -206,6 +206,7 @@ export class DashboardComponent implements OnInit {
   }
 
   updateOnlineStatusChart(): void {
+    if (typeof window === 'undefined') return;
 
     if (!this.onlineChart?.nativeElement) return;
 
@@ -233,8 +234,8 @@ export class DashboardComponent implements OnInit {
           radius: ['40%', '70%'],
           center: ['50%', '50%'],
           data: [
-            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#77b4eb' } },
-            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#2475bd' } }
+            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#2475bd' } },
+            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#77b4eb' } }
           ],
           label: {
             show: true,
@@ -261,8 +262,10 @@ export class DashboardComponent implements OnInit {
   }
 
   updateDoughnutChart(): void {
-    if (!this.DoughnutChartElement) return;
-    const doughnutChart = echarts.init(this.DoughnutChartElement.nativeElement);
+    if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
+    if (!this.DoughnutChartElement) return;  // Vérifie que l'élément est bien référencé
+
+    const doughnutChart = echarts.init(this.DoughnutChartElement.nativeElement);  // Initialise le graphique avec echarts
 
     const option = {
       title: {
@@ -272,39 +275,44 @@ export class DashboardComponent implements OnInit {
       },
       tooltip: {
         trigger: 'item',
-        formatter: '{b}: {c} ({d}%)'
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
       },
       legend: {
-        orient: 'horizontal',
-        bottom: '5%',
+        left: 'center',
+        top: 'bottom',
         data: ['Admins', 'Non-Admins'],
         textStyle: { fontSize: 12, fontWeight: 'bold' }
+      },
+      toolbox: {
+        show: true
       },
       series: [{
         name: 'Collaborateurs',
         type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['50%', '50%'],
+        radius: [20, 140],
+        center: ['50%', '50%'],  // Centre le graphique à 50% horizontal et 50% vertical
+        roseType: 'radius',
+        itemStyle: {
+          borderRadius: 5
+        },
+        label: {
+          show: false
+        },
+        emphasis: {
+          label: {
+            show: true
+          }
+        },
         data: [
-          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#2475bd' } },
+          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#DB7D1D' } },
           { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#77b4eb' } }
         ],
-        label: {
-          show: true,
-          position: '',
-          fontSize: 12,
-          fontWeight: 'bold',
-          formatter: '{b}: {c} ({d}%)'
-        },
-        labelLine: {
-          show: true
-        }
       }]
     };
 
-    doughnutChart.setOption(option);
+    doughnutChart.setOption(option);  // Applique les options au graphique
   }
-  // Méthode pour naviguer vers la liste des collaborateurs
+
   navigateToCollaboratorList(): void {
     this.router.navigate(['/collablist']);
   }
