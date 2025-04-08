@@ -129,7 +129,6 @@ export class UserComponent implements OnInit {
             { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#38839C' } }  // Deuxième couleur
           ]
         },
-        // Donut pour Bloqués et Non Bloqués
         {
           name: 'Bloqués et Non Bloqués',
           type: 'pie',

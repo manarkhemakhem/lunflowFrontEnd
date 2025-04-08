@@ -190,7 +190,7 @@ export class DashboardComponent implements OnInit {
         type: 'bar',
         data: [
           { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#db7d1d' } },
-          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#2475bd' } }
+          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#42a5f5' } }
         ],
         barWidth: '50%',
         label: {
@@ -231,7 +231,7 @@ export class DashboardComponent implements OnInit {
       series: [
         {
           type: 'pie',
-          radius: ['40%', '70%'],
+          radius: ['30%', '60%'],
           center: ['50%', '50%'],
           data: [
             { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#2475bd' } },
@@ -289,7 +289,7 @@ export class DashboardComponent implements OnInit {
       series: [{
         name: 'Collaborateurs',
         type: 'pie',
-        radius: [20, 140],
+        radius: [16, 120],
         center: ['50%', '50%'],  // Centre le graphique à 50% horizontal et 50% vertical
         roseType: 'radius',
         itemStyle: {
@@ -310,7 +310,7 @@ export class DashboardComponent implements OnInit {
       }]
     };
 
-    doughnutChart.setOption(option);  // Applique les options au graphique
+    doughnutChart.setOption(option);
   }
 
   navigateToCollaboratorList(): void {
