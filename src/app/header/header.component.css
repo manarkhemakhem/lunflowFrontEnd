@@ -1,85 +1,72 @@
-/* Global Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-/* Header */
+/* General Header and Sidebar Styles */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
-  color: #469adf;
-  padding: 15px 15px;
+  padding: 10px 10px;
+  background-color: #cadeee;
+  color: white;
+  position: relative;
+}
+
+.header-left .logo {
+  cursor: pointer;
+  width: 70%;
+}
+
+.sidebar {
   position: fixed;
   top: 0;
-  left: 0;
-  height: 50px;
-  width: 100%;
-  z-index: 10;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  left: -250px;  /* Le menu commence hors de l'écran */
+  width: 250px;
+  height: 100%;
+  background-color: #cadeee;
+  color: white;
+  transition: left 0.3s ease;  /* Animation pour la transition de gauche à droite */
+  padding-top: 20px;
+  z-index: 999;
 }
 
+.sidebar-open {
+  left: 0;  /* Quand ouvert, on le place à gauche */
+}
 
-
-
-ul {
+.sidebar ul {
   list-style: none;
-  margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  border-radius: 5px;
+  margin: 0;
 }
 
-ul li {
-  margin: 0 20px;
+.sidebar ul li {
+  padding: 15px;
 }
 
-ul li a {
+.sidebar ul li a {
   color: white;
   text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 10px 20px;
+  font-size: 18px;
   display: block;
-  border-radius: 5px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  color : #469adf ;
+  padding: 10px;
+  transition: background-color 0.3s;
 }
 
-/* Effet sur hover */
-ul li a:hover, ul li a.active {
-  background-color: #77b4eb; /* Couleur de survol */
-  transform: scale(1.1);
+.sidebar ul li a:hover {
+  background-color: #444;
+}
+
+/* Button for the toggle */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
   color: white;
+  font-size: 30px;
+  cursor: pointer;
 }
 
-/* Pour les petits écrans (Mobile) */
-@media (max-width: 767px) {
-  .header {
-    padding: 10px 15px; /* Réduire l'espace dans le header sur mobile */
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-left h2 {
-    font-size: 24px; /* Réduire la taille du titre */
-    margin-bottom: 10px;
-  }
-
-  ul {
-    width: 100%;
-    justify-content: flex-start; /* Aligner les éléments à gauche */
-  }
-
-  ul li {
-    margin: 10px 0; /* Espacement vertical entre les éléments du menu */
-  }
-
-  ul li a {
-    font-size: 14px;
-    padding: 8px 15px;
+/* Make the button visible only on smaller screens */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
   }
 }

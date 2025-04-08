@@ -93,7 +93,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
     if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
 
     const chart = echarts.init(this.addressChartElement.nativeElement);
-    const blueColors = ['#476B9E', '#DBA02E', '#2F76DB', '#867149', '#67696B'];
+    const blueColors = ['#476B9E', '#3a90d1', '#A5D4F5', '#cadeee'];
 
     const option = {
       title: {
@@ -107,13 +107,12 @@ export class GroupComponent implements OnInit, AfterViewInit {
         formatter: '{b}: {c} ({d}%)'
       },
       legend: {
-        top: 'bottom',
-          left: 'center',
-
+        top: '80%',
+        left: 'center',
       },
       series: [{
         type: 'pie',
-        radius: ['40%', '70%'],
+        radius: ['35%', '70%'],
         center: ['50%', '50%'],
         startAngle: 180,
         endAngle: 360,
@@ -124,6 +123,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
           name: item.address,
           itemStyle: { color: blueColors[index % blueColors.length] }
         })),
+        label: {
+          show: true,
+          position: 'outside',
+          formatter: '{b}: {c} ({d}%)',
+          fontSize: 12,
+          fontWeight: 'bold',
+          color: '#000'
+        }
 
 
       }]
@@ -160,7 +167,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
       series: [{
         data: this.collaboratorsCountByGroup.map(item => item.count),
         type: 'bar',
-        color: '#42A5F5',
+        color: '#3a90d1',
         barWidth: '60%',  // Agrandir la largeur des barres
         barCategoryGap: '20%',  // Ajouter de l'espace entre les barres
         label: {
@@ -206,7 +213,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
         type: 'line',  // Utiliser un graphique en ligne
         data: values,
         itemStyle: {
-          color: '#42A5F5'
+          color: '#A5D4F5'
         }
       }]
     };
@@ -259,14 +266,14 @@ export class GroupComponent implements OnInit, AfterViewInit {
           type: 'bar',
           stack: 'total',
           data: currentCollabs,
-          itemStyle: { color: '#38839C' }
+          itemStyle: { color: '#cadeee' }
         },
         {
           name: 'Maximum Autorisé',
           type: 'bar',
           stack: 'total',
           data: maxCollabs,
-          itemStyle: { color: '#18ABDB' }
+          itemStyle: { color: '#3a90d1' }
         }
       ]
     };

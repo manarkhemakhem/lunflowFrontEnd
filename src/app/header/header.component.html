@@ -1,19 +1,19 @@
 <!-- Header Section -->
 <header class="header">
   <div class="header-left">
-    <img src="assets/lunflow.png" alt="LUNFLOW Analytics Logo" class="logo" style="width: 70%;"/>
+    <img src="assets/lunflow.png" alt="LUNFLOW Analytics Logo" class="logo" style="width: 45%;" (click)="toggleSidebar()"/>
   </div>
 
+  <!-- Sidebar Menu -->
+  <div class="sidebar" [ngClass]="{'sidebar-open': isSidebarOpen}">
+    <ul>
+      <li><a routerLink="/user" routerLinkActive="active">Utilisateurs</a></li>
+      <li><a routerLink="/dashboard" routerLinkActive="active">Collaborateurs</a></li>
+      <li><a routerLink="/form" routerLinkActive="active">Widget</a></li>
+      <li><a routerLink="/group" routerLinkActive="active">Groupes</a></li>
+    </ul>
+  </div>
 
-<div>
-  <ul>
-    <li><a routerLink="/user" routerLinkActive="active">Utilisateurs</a></li>
-    <li><a routerLink="/dashboard" routerLinkActive="active">Collaborateurs</a></li>
-    <li><a routerLink="/form" routerLinkActive="active">widget</a></li>
-
-    <li><a routerLink="/group" routerLinkActive="active">groupes</a></li>
-  </ul>
-</div>
-
-
-
+  <!-- Menu Toggle Button -->
+  <button class="menu-toggle" (click)="toggleSidebar()">☰</button>
+</header>

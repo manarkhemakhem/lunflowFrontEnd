@@ -206,10 +206,7 @@ export class UserComponent implements OnInit {
         trigger: 'axis',
         axisPointer: { type: 'shadow' }
       },
-      legend: {
-        data: ['Nombre'],
-        top: 'bottom'
-      },
+
       grid: {
         left: '10%',
         right: '10%',
@@ -285,7 +282,6 @@ export class UserComponent implements OnInit {
         trigger: 'axis',
         axisPointer: { type: 'shadow' }
       },
-
       xAxis: {
         type: 'category',
         data: xAxisData,
@@ -297,17 +293,25 @@ export class UserComponent implements OnInit {
       yAxis: {
         type: 'value'
       },
-      series: [{
-        name: 'Utilisateurs',
-        type: 'bar',
-        data: seriesData,
-        itemStyle: {
-          color: '#3a90d1'
+      series: [
+        {
+          name: 'Utilisateurs',
+          type: 'bar',
+          data: seriesData,
+          itemStyle: {
+            color: '#3a90d1'
+          },
+          label: {
+            show: true, // Affiche les labels
+            position: 'inside', // Positionne le label à l'intérieur des barres
+            fontSize: 12, // Taille du texte
+            fontWeight: 'bold', // Style du texte
+            color: '#fff' // Couleur du texte
+          }
         }
-      }]
+      ]
     };
 
     chart.setOption(option);
-  }
-}
+  }}
 

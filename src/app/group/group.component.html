@@ -1,39 +1,34 @@
-<app-header></app-header>
-<div class="dashboard-container">
-  <h2>Tableau de Bord des groupes</h2>
 
-  <!-- Section des statistiques -->
-  <div class="statistics">
-
-    <div class="card" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
+  <app-header></app-header>
+  <div class="fullscreen-dashboard">
+    <!-- Colonne 1 : Statistiques -->
+    <div class="column stats-column">
+      <div class="stat-card blue">
+        <i class="fas fa-users icon"></i>
         <h3>Nombre Total de Groupes</h3>
-        <p>{{ totalGroups }}</p>
+        <h1>{{ totalGroups }}</h1>
+      </div>
     </div>
-  </div>
-    <div class="chart-container">
-      <!-- Première ligne de graphiques -->
-      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-        <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
-        <div #collaboratorsChart style="height: 400px;"></div>
+
+    <!-- Colonne 2 : Graphiques -->
+    <div class="column chart-column">
+      <div class="chart-card">
+        <div #collaboratorsChart class="chart"></div>
       </div>
-
-      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-        <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
-        <div #addressChart style="height: 400px; "></div>
+      <div class="chart-card">
+        <div #workflowChart class="chart"></div>
       </div>
+    </div>
 
-
-      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-        <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
-        <div #workflowChart style="width: 100%; height: 400px;"></div>
+    <!-- Colonne 3 : Graphiques -->
+    <div class="column chart-column">
+      <div class="chart-card">
+        <div #addressChart class="chart"></div>
       </div>
-      <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-        <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
-        <div #histogramChart style="width: 100%; height: 400px;"></div>
+      <div class="chart-card">
+
+        <div #histogramChart class="chart"></div>
       </div>
-
-
     </div>
   </div>
 
