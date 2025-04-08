@@ -304,8 +304,8 @@ export class DashboardComponent implements OnInit {
           }
         },
         data: [
-          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#DB7D1D' } },
-          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#77b4eb' } }
+          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#3a90d1' } },
+          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#cadeee' } }
         ],
       }]
     };

@@ -10,7 +10,7 @@
   box-sizing: border-box;
   background: #f5f7fa;
   overflow: hidden;
-  margin-top: 20px; /* un petit écart visuel */
+  margin-top: 60px; /* un petit écart visuel */
 }
 
 
@@ -91,9 +91,9 @@
 }
 
 /* Couleurs de cartes */
-.blue    { background-color: #cbe7ff; }
-.orange  { background: #fff3e0; }
-.violet  { background-color: #ede7f6; ; }
+.blue    { background-color: #cadeee; }
+.orange  { background: #A5D4F5; }
+.violet  { background-color: #3a90d1; ; }
 
 .chart {
   flex-grow: 1;
