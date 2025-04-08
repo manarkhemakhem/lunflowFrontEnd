@@ -101,7 +101,7 @@ export class DashboardComponent implements OnInit {
             type: 'bar',
             data: values,
             barWidth: '50%',
-            color: '#2475bd',
+            color: '#3a90d1',
             label: {
               show: true,
               position: 'insideTop',
@@ -189,8 +189,8 @@ export class DashboardComponent implements OnInit {
       series: [{
         type: 'bar',
         data: [
-          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#db7d1d' } },
-          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#42a5f5' } }
+          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#A5D4F5' } },
+          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#3a90d1' } }
         ],
         barWidth: '50%',
         label: {
@@ -234,8 +234,8 @@ export class DashboardComponent implements OnInit {
           radius: ['30%', '60%'],
           center: ['50%', '50%'],
           data: [
-            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#2475bd' } },
-            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#77b4eb' } }
+            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#cadeee' } },
+            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#A5D4F5' } }
           ],
           label: {
             show: true,

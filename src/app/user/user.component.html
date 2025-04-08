@@ -1,34 +1,37 @@
 <app-header></app-header>
-<div class="dashboard-container">
-  <h2>Tableau de Bord des utilisateurs</h2>
-
-  <!-- Section des statistiques -->
-  <div class="statistics">
-
-    <div class="cardstat" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-users" style="font-size: 24px; color: #42A5F5;"></i>
-        <h3>Nombre Total de utilisateurs</h3>
-        <p>{{ totalUsers }}</p>
+<div class="fullscreen-dashboard">
+  <!-- Colonne 1 : Statistiques -->
+  <div class="column stats-column">
+    <div class="stat-card blue">
+      <i class="fas fa-users icon"></i>
+      <h2>Utilisateurs</h2>
+      <h1>{{ totalUsers }}</h1>
     </div>
-    <div class="cardstat" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-check-circle" style="font-size: 24px; color: #42A5F5;"></i>
-      <h3>Nombre Total de Utilisateurs Confirmés</h3>
-      <p>{{ confirmedCount }}</p>
+    <div class="stat-card orange">
+      <i class="fas fa-check-circle"></i>
+      <h2>Utilisateurs Confirmés</h2>
+      <h1>{{ confirmedCount }}</h1>
     </div>
   </div>
-  <div class="chart-container">
-    <!-- Première ligne de graphiques -->
-    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-chart-pie" style="font-size: 24px; color: #42A5F5;"></i>
-      <div #DoughnutChart  style="height: 400px; width:100%;"></div>
 
+  <div class="column chart-column">
+    <div class="chart-card">
+      <div #DoughnutChart3 class="chart"></div>
     </div>
-
-    <!-- Première ligne de graphiques -->
-    <div class="card chart-card" [ngStyle]="{'border-color': '#42A5F5'}">
-      <i class="fas fa-chart-bar" style="font-size: 24px; color: #42A5F5;"></i>
-      <div #HistogramChart style="height: 400px; width: 100%;"></div>
-
+    <div class="chart-card">
+      <div #DoughnutChart1 class="chart"></div>
     </div>
+  </div>
 
+  <!-- Colonne 3 : Graphiques -->
+  <div class="column chart-column">
+    <div class="chart-card">
+      <div #DoughnutChart2 class="chart"></div>
+    </div>
+    <div class="chart-card">
+
+      <div #HistogramChart class="chart"></div>
+    </div>
+  </div>
 </div>
+

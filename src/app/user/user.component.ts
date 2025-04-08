@@ -13,7 +13,10 @@ import * as echarts from 'echarts';
 })
 export class UserComponent implements OnInit {
 
-  @ViewChild('DoughnutChart', { static: true }) DoughnutChartElement!: ElementRef;
+  @ViewChild('DoughnutChart1', { static: true }) DoughnutChart1Element!: ElementRef;
+  @ViewChild('DoughnutChart2', { static: true }) DoughnutChart2Element!: ElementRef;
+  @ViewChild('DoughnutChart3', { static: true }) DoughnutChart3Element!: ElementRef;
+
   @ViewChild('HistogramChart', { static: true }) histogramChartElement!: ElementRef;
 
   users: User[] = [];
@@ -85,98 +88,164 @@ export class UserComponent implements OnInit {
   }
   updateDoughnutChart(): void {
     if (typeof window === 'undefined') return;
-    if (!this.DoughnutChartElement) return;  // Vérifie si le DOM est chargé
+    if (!this.DoughnutChart1Element.nativeElement) return;  // Vérifie si le DOM est chargé
+    const doughnutChart1 = echarts.init(this.DoughnutChart1Element.nativeElement);
+    const doughnutChart2 = echarts.init(this.DoughnutChart2Element.nativeElement);
+    const doughnutChart3 = echarts.init(this.DoughnutChart3Element.nativeElement);
 
-    const doughnutChart = echarts.init(this.DoughnutChartElement.nativeElement);
 
     const option = {
       title: {
-        text: 'Répartition des Utilisateurs',
+        text: 'Utilisateurs Confirmés vs Non Confirmés',
         left: 'center',
-        textStyle: { fontSize: 18, fontWeight: 'bold' }
+        top: 10,
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
       },
       tooltip: {
         trigger: 'item',
         formatter: '{a} <br/>{b} : {c} ({d}%)'
       },
       legend: {
-        left: 'center',
-        top: 'bottom',
-        data: ['Confirmés', 'Non Confirmés', 'Bloqués', 'Non Bloqués', 'Administrateurs', 'Non Administrateurs'],
-        textStyle: { fontSize: 12, fontWeight: 'bold' }
+        orient: 'vertical',
+        left: 'left',
+        top: 'middle'
       },
-      grid: { top: '10%', bottom: '10%' }, // Ajuster la grille pour s'assurer que tout le contenu est visible
       series: [
-        // Donut pour Confirmés et Non Confirmés
         {
           name: 'Confirmés et Non Confirmés',
           type: 'pie',
-          radius: ['40%', '70%'],  // Donut (cercle creux)
-          center: ['25%', '50%'],  // Centre du graphique 1, éloigné à gauche
+          radius: ['25%', '50%'],
+          center: ['60%', '60%'],
           itemStyle: {
             borderRadius: 5
           },
           label: {
-            show: false
+            show: true,
+            position: 'inside',
+            formatter: '{b}\n{c} ({d}%)',
+            fontSize: 12,
+            fontWeight: 'bold'
           },
           emphasis: {
             label: {
-              show: true
+              show: true,
+              fontSize: 14,
+              fontWeight: 'bold'
             }
           },
           data: [
-            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: '#DB7D1D' } },
-            { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#38839C' } }  // Deuxième couleur
-          ]
-        },
-        {
-          name: 'Bloqués et Non Bloqués',
-          type: 'pie',
-          radius: ['40%', '70%'],  // Donut (cercle creux)
-          center: ['50%', '50%'],  // Centre du graphique 2, centré
-          itemStyle: {
-            borderRadius: 5
-          },
-          label: {
-            show: false
-          },
-          emphasis: {
-            label: {
-              show: true
-            }
-          },
-          data: [
-            { value: this.blockedCount, name: 'Bloqués', itemStyle: { color: '#325561' } },  // Troisième couleur
-            { value: this.notBlockedCount, name: 'Non Bloqués', itemStyle: { color: '#42A5F5' } }  // Quatrième couleur
-          ]
-        },
-        // Donut pour Administrateurs et Non Administrateurs
-        {
-          name: 'Administrateurs et Non Administrateurs',
-          type: 'pie',
-          radius: ['40%', '70%'],  // Donut (cercle creux)
-          center: ['75%', '50%'],  // Centre du graphique 3, éloigné à droite
-          itemStyle: {
-            borderRadius: 5
-          },
-          label: {
-            show: false
-          },
-          emphasis: {
-            label: {
-              show: true
-            }
-          },
-          data: [
-            { value: this.adminCount, name: 'Administrateurs', itemStyle: { color: '#18ABDB' } },  // Cinquième couleur
-            { value: this.nonAdminCount, name: 'Non Administrateurs', itemStyle: { color: '#DB7D1D' } }  // Sixième couleur
+            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: '#A5D4F5' } },
+            { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#cadeee' } }
           ]
         }
       ]
     };
 
-    doughnutChart.setOption(option);  // Applique les options au graphique
-  }
+    const option2 = {
+      title: {
+        text: 'Utilisateurs Bloqués vs Non Bloqués',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        top: 'middle'
+      },
+      series: [
+        {
+          name: 'Bloqués et Non Bloqués',
+          type: 'pie',
+          radius: '50%',
+          center: ['60%', '60%'],
+          itemStyle: {
+            borderRadius: 5
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {d}%',
+            position: 'outside'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontWeight: 'bold'
+            }
+          },
+          data: [
+            { value: this.blockedCount, name: 'Bloqués', itemStyle: { color: '#3a90d1' } },
+            { value: this.notBlockedCount, name: 'Non Bloqués', itemStyle: { color: '#cadeee' } }
+          ]
+        }
+      ]
+    };
+
+
+    const option3 = {
+      title: {
+        text: 'Répartition des Admins',
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' }
+      },
+      legend: {
+        data: ['Nombre'],
+        top: 'bottom'
+      },
+      grid: {
+        left: '10%',
+        right: '10%',
+        bottom: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value',
+        boundaryGap: [0, 0.01]
+      },
+      yAxis: {
+        type: 'category',
+        data: ['Non Admins', 'Admins']
+      },
+      series: [{
+        name: 'Nombre',
+        type: 'bar',
+        data: [this.nonAdminCount, this.adminCount],
+        itemStyle: {
+          color: (params: any) => {
+            return params.name === 'Admins' ? '#A5D4F5' : '#3a90d1';
+          }
+        },
+        label: {
+          show: true,
+          position: 'right'
+        }
+      }]
+    };
+
+
+    // Applique les options aux graphiques
+    doughnutChart1.setOption(option);
+    doughnutChart2.setOption(option2);
+    doughnutChart3.setOption(option3);
+  };
 
 
    groupDataByQuarter() {
@@ -216,6 +285,7 @@ export class UserComponent implements OnInit {
         trigger: 'axis',
         axisPointer: { type: 'shadow' }
       },
+
       xAxis: {
         type: 'category',
         data: xAxisData,
@@ -232,7 +302,7 @@ export class UserComponent implements OnInit {
         type: 'bar',
         data: seriesData,
         itemStyle: {
-          color: '#42A5F5'
+          color: '#3a90d1'
         }
       }]
     };
