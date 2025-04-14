@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./collaborator-list.component.css']
 })
 export class CollaboratorListComponent implements OnInit {
+  
   collaborators: any[] = [];
   pageSize: number = 20;
   currentPage: number = 1;
@@ -86,5 +87,8 @@ export class CollaboratorListComponent implements OnInit {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedCollaborator = null; // Réinitialiser le collaborateur sélectionné
+  }
+  navigateToDashboard(): void {
+    this.router.navigate(['/dashboard']); // adapte cette route selon ton app
   }
 }

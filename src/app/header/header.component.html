@@ -1,19 +1,41 @@
-<!-- Header Section -->
-<header class="header">
-  <div class="header-left">
-    <img src="assets/lunflow.png" alt="LUNFLOW Analytics Logo" class="logo" style="width: 45%;" (click)="toggleSidebar()"/>
-  </div>
+<!-- Sidebar -->
+<div class="sidebar" [ngClass]="{ 'sidebar-open': isSidebarOpen }">
+  <!-- Logo + Toggle -->
+  <div class="sidebar-header">
+    <!-- Logo qui ne s'affiche que si la sidebar est ouverte -->
+    <img *ngIf="isSidebarOpen" src="assets/lunflow.png" alt="Logo" class="logo" />
+    <span class="company-name" *ngIf="isSidebarOpen">Lunar TC</span>
 
-  <!-- Sidebar Menu -->
-  <div class="sidebar" [ngClass]="{'sidebar-open': isSidebarOpen}">
-    <ul>
-      <li><a routerLink="/user" routerLinkActive="active">Utilisateurs</a></li>
-      <li><a routerLink="/dashboard" routerLinkActive="active">Collaborateurs</a></li>
-      <li><a routerLink="/form" routerLinkActive="active">Widget</a></li>
-      <li><a routerLink="/group" routerLinkActive="active">Groupes</a></li>
-    </ul>
+    <!-- Bouton pour basculer la sidebar -->
+    <button class="menu-toggle" (click)="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
-
-  <!-- Menu Toggle Button -->
-  <button class="menu-toggle" (click)="toggleSidebar()">☰</button>
-</header>
+  <!-- Navigation -->
+  <ul class="nav-links">
+    <li>
+      <a routerLink="/user" routerLinkActive="active">
+        <i class="fas fa-user"></i>
+        <span *ngIf="isSidebarOpen">Utilisateurs</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active">
+        <i class="fas fa-handshake"></i>
+        <span *ngIf="isSidebarOpen">Collaborateurs</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/group" routerLinkActive="active">
+        <i class="fas fa-users"></i>
+        <span *ngIf="isSidebarOpen">Groupes</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/form" routerLinkActive="active">
+        <i class="fas fa-chart-pie"></i>
+        <span *ngIf="isSidebarOpen">Présentation</span>
+      </a>
+    </li>
+  </ul>
+</div>

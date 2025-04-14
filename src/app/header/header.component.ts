@@ -12,8 +12,14 @@ import { RouterModule } from '@angular/router';
 })
 export class HeaderComponent {
   isSidebarOpen = false;
+  
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
+    const menuButton = document.querySelector('.menu-toggle');
+    if (menuButton) {
+      menuButton.classList.toggle('active', this.isSidebarOpen);
+    }
   }
+
 }

@@ -4,17 +4,18 @@ import { Collaborator, CollaboratorService } from '../services/collaborator.serv
 import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
 import { HeaderComponent } from "../header/header.component";
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
+import { DatabaseComponent } from "../database/database.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DatabaseComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-
+export class DashboardComponent implements OnInit  {
+  private subscriptions: Subscription[] = [];
   @ViewChild('DoughnutChart', { static: true })    DoughnutChartElement!: ElementRef;
   @ViewChild('histogramChart', { static: false }) chartElement!: ElementRef;
   @ViewChild('DeletedStatusChartElement', { static: false }) DeletedStatusChartElement!: ElementRef;
@@ -51,6 +52,7 @@ export class DashboardComponent implements OnInit {
         console.error('Erreur lors de la récupération de l’histogramme:', error);
       }
     );
+    
   }
 
   ngAfterViewInit(): void {

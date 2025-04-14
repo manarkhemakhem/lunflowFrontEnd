@@ -1,72 +1,89 @@
-/* General Header and Sidebar Styles */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 10px;
-  background-color: #cadeee;
-  color: white;
-  position: relative;
-}
-
-.header-left .logo {
-  cursor: pointer;
-  width: 70%;
-}
-
+/* header.component.css */
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px;  /* Le menu commence hors de l'écran */
-  width: 250px;
-  height: 100%;
-  background-color: #cadeee;
-  color: white;
-  transition: left 0.3s ease;  /* Animation pour la transition de gauche à droite */
+  left: 0;
+  height: 100vh;
+  width: 60px;
+  background-color: #f4f4f4;
+  border-radius: 0 10px 10px 0;
+  transition: width 0.3s ease;
   padding-top: 20px;
-  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+  border-right: 2px solid #3a90d1; /* Bordure droite colorée */
 }
 
-.sidebar-open {
-  left: 0;  /* Quand ouvert, on le place à gauche */
+/* Lorsque la sidebar est ouverte */
+.sidebar.sidebar-open {
+  width: 250px; /* Largeur de la sidebar ouverte */
 }
 
-.sidebar ul {
-  list-style: none;
+/* Contenu du logo et du nom */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+/* Logo */
+.logo {
+  width: 80%;
+  margin-bottom: 10px;
+}
+
+/* Nom de la société */
+.company-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3a90d1;
+}
+
+/* Bouton pour ouvrir/fermer la sidebar */
+.menu-toggle {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #3a90d1;
+  transition: color 0.3s ease;
+}
+
+/* Liste de navigation */
+.nav-links {
+  list-style-type: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar ul li {
-  padding: 15px;
+.nav-links li {
+  margin: 20px 0;
 }
 
-.sidebar ul li a {
-  color: white;
+.nav-links a {
   text-decoration: none;
-  font-size: 18px;
-  display: block;
-  padding: 10px;
-  transition: background-color 0.3s;
+  color: #333;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
 }
 
-.sidebar ul li a:hover {
-  background-color: #444;
-}
-
-/* Button for the toggle */
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
+.nav-links a:hover {
+  background-color: #3a90d1;
   color: white;
-  font-size: 30px;
-  cursor: pointer;
 }
 
-/* Make the button visible only on smaller screens */
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
+.nav-links i {
+  margin-right: 10px;
+}
+
+/* Lorsque la sidebar est fermée, cacher les labels */
+.sidebar:not(.sidebar-open) .nav-links span {
+  display: none;
 }

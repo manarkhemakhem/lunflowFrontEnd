@@ -1,0 +1,54 @@
+.presentation-container {
+  margin: 20px;
+}
+
+.add-dashboard,
+.add-card {
+  margin-bottom: 20px;
+}
+
+.add-dashboard input,
+.add-card input,
+.add-card select,
+.add-card textarea {
+  padding: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  width: 250px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.dashboard-list {
+  margin-top: 20px;
+}
+
+.dashboard {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container {
+  margin-top: 10px;
+}

@@ -1,3 +1,5 @@
+<!--
+
 <div>
   <label for="classSelect">Sélectionnez une classe:</label>
   <select id="classSelect" [(ngModel)]="selectedClass" (change)="loadClassData()">
@@ -7,22 +9,37 @@
   </select>
 </div>
 
-<!-- Affichage dynamique des attributs sélectionnés -->
 <div *ngIf="availableAttributes.length > 0">
   <div *ngFor="let attribute of selectedAttributes; let i = index">
     <label for="attributeSelect{{i}}">Sélectionnez attribut {{i + 1}} :</label>
 
-    <!-- Champ de sélection de l'attribut -->
+
     <select id="attributeSelect{{i}}" [(ngModel)]="selectedAttributes[i]" (change)="onAttributeChange(i)">
       <option *ngFor="let attribute of availableAttributes" [value]="attribute">
         {{ attribute }}
       </option>
     </select>
 
-    <!-- Icône de suppression (croix) -->
     <i class="fa fa-times" (click)="removeAttribute(i)" style="cursor: pointer; color: red;"></i>
   </div>
 
-  <!-- Icône pour ajouter un attribut -->
+
   <i class="fa fa-plus" (click)="addAttribute()" style="cursor: pointer; color: green; font-size: 20px;"></i>
 </div>
+ -->
+ <h3>2. Ou saisir un nouveau graphique</h3>
+ <form #chartForm="ngForm" (ngSubmit)="onFormSubmit()">
+   <label>
+     Titre :
+     <input [(ngModel)]="form.title" name="title" required />
+   </label><br><br>
+
+   <label>
+     <input [(ngModel)]="form.data" name="data" required />
+   </label><br><br>
+
+   <button type="submit">Générer</button>
+ </form>
+
+ <!-- <div #chartContainer echarts [options]="chartOption" style="height: 400px; margin-top: 20px;"></div>
+ -->

@@ -1,0 +1,47 @@
+<div class="navbar">
+  <div class="nav-left">
+    <!-- Éléments alignés à gauche -->
+  </div>
+  <div class="nav-right">
+    <div class="container">
+      <h1>Select Database and Collection</h1>
+
+      <!-- Base de données -->
+      <div>
+        <label for="database">Choose a database:</label>
+        <select id="database" [(ngModel)]="selectedDatabase" (change)="onDatabaseSelect()">
+          <option *ngFor="let db of databases" [value]="db.name">{{ db.name }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="connectionMessage">
+        <p>{{ connectionMessage }}</p>
+      </div>
+
+      <!-- Collection -->
+      <div *ngIf="selectedDatabase">
+        <label for="collection">Choose a collection:</label>
+        <select id="collection" [(ngModel)]="selectedCollection" (change)="onCollectionSelect()">
+          <option *ngFor="let collection of ['collaborator', 'user', 'group']" [value]="collection">{{ collection }}</option>
+        </select>
+      </div>
+
+      <!-- Affichage des données de la collection -->
+      <div *ngIf="collectionData.length > 0">
+        <h2>Collection Data:</h2>
+        <table>
+          <thead>
+            <tr>
+              <th *ngFor="let key of objectKeys(collectionData[0])">{{ key }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of collectionData">
+              <td *ngFor="let key of objectKeys(item)">{{ item[key] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+</div>
