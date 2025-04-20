@@ -1,47 +1,48 @@
 <div class="navbar">
-  <div class="nav-left">
-    <!-- Éléments alignés à gauche -->
-  </div>
+  <div class="nav-left"></div>
+
   <div class="nav-right">
-    <div class="container">
-      <h1>Select Database and Collection</h1>
+    <button class="db-button" (click)="openDatabaseDialog()">
+      <i class="fa fa-database"></i>
+      {{ selectedDatabase || 'Choisir une base' }}
+    </button>
+  </div>
+</div>
 
-      <!-- Base de données -->
-      <div>
-        <label for="database">Choose a database:</label>
-        <select id="database" [(ngModel)]="selectedDatabase" (change)="onDatabaseSelect()">
-          <option *ngFor="let db of databases" [value]="db.name">{{ db.name }}</option>
-        </select>
-      </div>
+<!-- Dialog pour la sélection de la base de données -->
+<div *ngIf="dialogOpened" class="database-dialog-overlay">
+  <div class="database-dialog">
 
-      <div *ngIf="connectionMessage">
-        <p>{{ connectionMessage }}</p>
-      </div>
+    <button class="close-icon" (click)="closeDialog()" aria-label="Fermer">
+      <i class="fa fa-times"></i>
+    </button>
 
-      <!-- Collection -->
-      <div *ngIf="selectedDatabase">
-        <label for="collection">Choose a collection:</label>
-        <select id="collection" [(ngModel)]="selectedCollection" (change)="onCollectionSelect()">
-          <option *ngFor="let collection of ['collaborator', 'user', 'group']" [value]="collection">{{ collection }}</option>
-        </select>
-      </div>
+    <h2>Sélectionner une base de données</h2>
 
-      <!-- Affichage des données de la collection -->
-      <div *ngIf="collectionData.length > 0">
-        <h2>Collection Data:</h2>
-        <table>
-          <thead>
-            <tr>
-              <th *ngFor="let key of objectKeys(collectionData[0])">{{ key }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of collectionData">
-              <td *ngFor="let key of objectKeys(item)">{{ item[key] }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <mat-form-field appearance="fill" class="db-select">
+      <mat-label>Base de données</mat-label>
+      <mat-select [(ngModel)]="selectedDatabase">
+        <mat-option *ngFor="let db of databases" [value]="db.name">
+          {{ db.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- ✅ Bouton Test de Connexion -->
+    <div class="dialog-actions">
+      <button class="btn test-btn" (click)="testConnection()">Tester la connexion</button>
+      <p *ngIf="connectionStatus" class="status-msg">{{ connectionStatus }}</p>
+
+      <div class="dialog-buttons">
+        <button class="btn select-btn" (click)="selectDatabase(selectedDatabase)">Sélectionner</button>
       </div>
     </div>
-
+  </div>
 </div>
+
+<!--
+<div *ngIf="selectedDatabase" class="collection-section">
+  <label for="collection-input">Nom de la collection :</label>
+  <input id="collection-input" type="text" [(ngModel)]="selectedCollection" placeholder="ex: collaborators" />
+  <button class="btn load-btn" (click)="loadCollectionData()">Charger les données</button>
+</div> -->

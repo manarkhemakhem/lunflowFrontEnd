@@ -27,19 +27,20 @@
   <i class="fa fa-plus" (click)="addAttribute()" style="cursor: pointer; color: green; font-size: 20px;"></i>
 </div>
  -->
- <h3>2. Ou saisir un nouveau graphique</h3>
- <form #chartForm="ngForm" (ngSubmit)="onFormSubmit()">
-   <label>
-     Titre :
-     <input [(ngModel)]="form.title" name="title" required />
-   </label><br><br>
+ <div class="container">
+  <h2>📊 Analyse de collection</h2>
 
-   <label>
-     <input [(ngModel)]="form.data" name="data" required />
-   </label><br><br>
+  <div class="form-group">
+    <label>Collection :</label>
+    <select [(ngModel)]="selectedCollection" (change)="onCollectionSelect()">
+      <option *ngFor="let col of collections" [value]="col">{{ col }}</option>
+    </select>
+  </div>
 
-   <button type="submit">Générer</button>
- </form>
-
- <!-- <div #chartContainer echarts [options]="chartOption" style="height: 400px; margin-top: 20px;"></div>
- -->
+  <div class="form-group" *ngIf="fieldNames.length > 0">
+    <label>Champ :</label>
+   <!--  <select [(ngModel)]="selectedField" (change)="onFieldChange()">
+      <option *ngFor="let field of fieldNames" [value]="field">{{ field }}</option>
+    </select> -->
+  </div>
+</div>

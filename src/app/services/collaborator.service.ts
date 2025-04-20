@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { switchMap, filter } from 'rxjs/operators';
+import { DatabaseService } from './database.service';
 
 export interface Collaborator {
   id: string;
@@ -19,70 +21,73 @@ export interface Collaborator {
   providedIn: 'root',
 })
 export class CollaboratorService {
-  private apiUrl = 'http://localhost:8080/api/collaborators';
+  private baseUrl = 'http://localhost:8080/api';
+  private databaseName: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private databaseService: DatabaseService
+  ) {
+    // Écoute les changements de base de données
+    this.databaseService.selectedDatabase$
+      .pipe(filter(db => !!db)) // Ignore les valeurs vides
+      .subscribe((dbName) => {
+        this.databaseName = dbName;
+        console.log('Base de données sélectionnée pour les collaborateurs :', dbName);
+      });
+  }
 
-  // Récupérer tous les collaborateurs
+  private get apiUrl(): string {
+    if (!this.databaseName) {
+      throw new Error("Aucune base de données sélectionnée.");
+    }
+    return `${this.baseUrl}/${this.databaseName}/collaborators`;
+  }
+
+  // ⚙️ Méthodes inchangées mais utilisent this.apiUrl
+
   getAllCollaborators(): Observable<Collaborator[]> {
     return this.http.get<Collaborator[]>(this.apiUrl);
   }
 
-  // Récupérer un collaborateur par ID
   getCollaboratorById(id: string): Observable<Collaborator> {
     return this.http.get<Collaborator>(`${this.apiUrl}/${id}`);
   }
 
-  // Supprimer un collaborateur par ID
   deleteCollaborator(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   getAllAdmin(): Observable<Collaborator[]> {
-    console.log("Appel à l'API des administrateurs");
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/Admin`);
+  }
 
-    return this.http.get<Collaborator[]>(`${this.apiUrl}/Admin`).pipe(
-      tap(data => {
-        console.log('Données des administrateurs récupérées:');
-        data.forEach(collaborator => {
-          console.log(`Collaborator: ${collaborator.fullname}, admin: ${collaborator.admin}`);
-        });
-      }));}
-
-  // Récupérer tous les non-administrateurs
   getAllNotAdmin(): Observable<Collaborator[]> {
     return this.http.get<Collaborator[]>(`${this.apiUrl}/NotAdmin`);
   }
 
-  // Récupérer les collaborateurs par groupId
   getCollaboratorsByGroup(groupId: string): Observable<Collaborator[]> {
     return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
   }
-  // Get histogram data (Collaborators creation dates)
+
   getCreationDatesHistogram(): Observable<{ [date: string]: number }> {
     return this.http.get<{ [date: string]: number }>(`${this.apiUrl}/histogram`);
   }
 
-
-    getCollaboratorsByGroupId(groupId: string): Observable<Collaborator[]> {
-      return this.http.get<Collaborator[]>(`${this.apiUrl}/group/${groupId}`);
-    }
-    getCollaboratorsOnline(): Observable<Collaborator[]> {
-      return this.http.get<Collaborator[]>(`${this.apiUrl}/onLine`);
-    }
-
-    getCollaboratorsOffline(): Observable<Collaborator[]> {
-      return this.http.get<Collaborator[]>(`${this.apiUrl}/offLine`);
-    }
-getAllCollaboratorsDeletedStatus(): Observable<Map<string, boolean>> {
-  return this.http.get<Map<string, boolean>>(`${this.apiUrl}/deleted`);
-}
-searchByFullname(fullname: string): Observable<Collaborator[]> {
-  if (!fullname.trim()) {
-    throw new Error("Le nom ne peut pas être vide ou null");
+  getCollaboratorsOnline(): Observable<Collaborator[]> {
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/onLine`);
   }
 
-  return this.http.get<Collaborator[]>(`${this.apiUrl}/search?fullname=${fullname.trim()}`);
-}
+  getCollaboratorsOffline(): Observable<Collaborator[]> {
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/offLine`);
+  }
 
+  getAllCollaboratorsDeletedStatus(): Observable<Map<string, boolean>> {
+    return this.http.get<Map<string, boolean>>(`${this.apiUrl}/deleted`);
+  }
+
+  searchByFullname(fullname: string): Observable<Collaborator[]> {
+    if (!fullname.trim()) throw new Error("Le nom ne peut pas être vide ou null");
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/search?fullname=${fullname.trim()}`);
+  }
 }

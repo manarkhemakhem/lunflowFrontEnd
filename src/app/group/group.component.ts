@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Collaborator, CollaboratorService } from '../services/collaborator.service';
+//import { Collaborator, CollaboratorService } from '../services/collaborator.service';
 import { GroupService, Group } from '../services/group.service';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from "../header/header.component";
@@ -29,7 +29,7 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
   constructor(
     private groupService: GroupService,
-    private collaboratorService: CollaboratorService
+    //private collaboratorService: CollaboratorService
   ) {}
 
   ngOnInit(): void {

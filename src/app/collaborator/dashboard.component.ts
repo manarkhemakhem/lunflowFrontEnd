@@ -1,27 +1,26 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Collaborator, CollaboratorService } from '../services/collaborator.service';
 import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
-import { HeaderComponent } from "../header/header.component";
 import { forkJoin, Subscription } from 'rxjs';
 import { DatabaseComponent } from "../database/database.component";
+import { Collaborator, CollaboratorService } from '../services/collaborator.service';
+import { DatabaseService } from '../services/database.service'; // Assurez-vous que ce service est importé
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DatabaseComponent],
+  imports: [CommonModule, RouterModule, DatabaseComponent,HeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit  {
+export class DashboardComponent implements OnInit {
   private subscriptions: Subscription[] = [];
-  @ViewChild('DoughnutChart', { static: true })    DoughnutChartElement!: ElementRef;
+  @ViewChild('DoughnutChart', { static: true }) DoughnutChartElement!: ElementRef;
   @ViewChild('histogramChart', { static: false }) chartElement!: ElementRef;
   @ViewChild('DeletedStatusChartElement', { static: false }) DeletedStatusChartElement!: ElementRef;
   @ViewChild('onlineChart', { static: false }) onlineChart!: ElementRef;
-
-
 
   creationHistogram: { [date: string]: number } = {};
   totalCollaborators: number = 0;
@@ -32,17 +31,29 @@ export class DashboardComponent implements OnInit  {
   notAdmins: Collaborator[] = [];
   totalDeleted: number = 0;
   totalNotDeleted: number = 0;
-
   totalOnline: number = 0;
   totalNotOnline: number = 0;
 
-
-  constructor(private collaboratorService: CollaboratorService, private cdr: ChangeDetectorRef , private router: Router) { }
+  constructor(
+    private collaboratorService: CollaboratorService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private dbService: DatabaseService // Injecte DatabaseService
+  ) { }
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined')
-    {this.loadDashboardData();}
+    this.subscriptions.push(
+      // Surveille les changements de la base de données sélectionnée
+      this.dbService.selectedDatabase$.subscribe((databaseName: string) => { // Ajout du type explicite ici
+        if (databaseName) {
+          // Recharge les données des collaborateurs à chaque changement de base
+          this.loadDashboardData();
+        }
+      })
+    );
 
+    // Charge initialement les données
+    this.loadDashboardData();
     this.collaboratorService.getCreationDatesHistogram().subscribe(
       (data) => {
         this.creationHistogram = data;
@@ -52,7 +63,6 @@ export class DashboardComponent implements OnInit  {
         console.error('Erreur lors de la récupération de l’histogramme:', error);
       }
     );
-    
   }
 
   ngAfterViewInit(): void {
@@ -61,105 +71,103 @@ export class DashboardComponent implements OnInit  {
     }, 500);
     if (Object.keys(this.creationHistogram).length > 0) {
       this.loadChart();
-    }  }
-
-
-    private loadChart(): void {
-      if (typeof window === 'undefined') return;
-      if (!this.chartElement) return;
-
-      const chartInstance = echarts.init(this.chartElement.nativeElement);
-      const dates = Object.keys(this.creationHistogram);
-      const values = Object.values(this.creationHistogram);
-
-      const options = {
-        title: {
-          text: 'Évolution Trimestrielle des Collaborateurs Créés',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        grid: {
-          left: '10%',
-          right: '5%',
-          bottom: '20%'
-        },
-        xAxis: {
-          type: 'category',
-          data: dates ,
-          axisLabel: {
-            interval: 0,
-            rotate: 45,
-            fontSize: 12
-          }
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: [
-          {
-            name: 'Nombre de collaborateurs',
-            type: 'bar',
-            data: values,
-            barWidth: '50%',
-            color: '#3a90d1',
-            label: {
-              show: true,
-              position: 'insideTop',
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: 12
-            }
-          }
-        ]
-      };
-
-      chartInstance.setOption(options);
     }
-
-    loadDashboardData(): void {
-      this.collaboratorService.getAllCollaborators().subscribe(data => {
-        this.collaborators = data;
-        this.totalCollaborators = this.collaborators.length;
-        this.collaboratorService.getAllNotAdmin().subscribe(
-              (res) => {
-
-                this.totalNotAdmins = res.length;
-              }
-            );
-            this.collaboratorService.getAllAdmin().subscribe(
-              (res) => {
-
-                this.totalAdmins = res.length;
-              }
-            );
-            forkJoin({
-              online: this.collaboratorService.getCollaboratorsOnline(),
-              offline: this.collaboratorService.getCollaboratorsOffline()
-            }).subscribe(
-              ({ online, offline }) => {
-                this.totalOnline = online.length;
-                this.totalNotOnline = offline.length;
-                this.updateOnlineStatusChart();
-              },
-              error => {
-                console.error("Erreur lors du chargement des données du tableau de bord", error);
-              }
-            );
-
-
-        this.totalDeleted = this.collaborators.filter(collab => collab.deleted === true).length;
-        this.totalNotDeleted = this.collaborators.filter(collab => collab.deleted === false).length;
-
-        this.updateDeletedStatusChart();
-        this.updateOnlineStatusChart();
-        this.updateDoughnutChart();
-      });
-
   }
 
+  private loadChart(): void {
+    if (typeof window === 'undefined') return;
+    if (!this.chartElement) return;
 
+    const chartInstance = echarts.init(this.chartElement.nativeElement);
+    const dates = Object.keys(this.creationHistogram);
+    const values = Object.values(this.creationHistogram);
+
+    const options = {
+      title: {
+        text: 'Évolution Trimestrielle des Collaborateurs Créés',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      grid: {
+        left: '10%',
+        right: '5%',
+        bottom: '20%'
+      },
+      xAxis: {
+        type: 'category',
+        data: dates,
+        axisLabel: {
+          interval: 0,
+          rotate: 45,
+          fontSize: 12
+        }
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Nombre de collaborateurs',
+          type: 'bar',
+          data: values,
+          barWidth: '50%',
+          color: '#3a90d1',
+          label: {
+            show: true,
+            position: 'insideTop',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: 12
+          }
+        }
+      ]
+    };
+
+    chartInstance.setOption(options);
+  }
+
+  // Méthode pour charger les données du tableau de bord selon la base de données sélectionnée
+  loadDashboardData(): void {
+    this.collaboratorService.getAllCollaborators().subscribe(data => {
+      this.collaborators = data;
+      this.totalCollaborators = this.collaborators.length;
+
+      // Charger les données des admins et non-admins
+      this.collaboratorService.getAllNotAdmin().subscribe(
+        (res) => {
+          this.totalNotAdmins = res.length;
+        }
+      );
+      this.collaboratorService.getAllAdmin().subscribe(
+        (res) => {
+          this.totalAdmins = res.length;
+        }
+      );
+
+      forkJoin({
+        online: this.collaboratorService.getCollaboratorsOnline(),
+        offline: this.collaboratorService.getCollaboratorsOffline()
+      }).subscribe(
+        ({ online, offline }) => {
+          this.totalOnline = online.length;
+          this.totalNotOnline = offline.length;
+          this.updateOnlineStatusChart();
+        },
+        error => {
+          console.error("Erreur lors du chargement des données du tableau de bord", error);
+        }
+      );
+
+      this.totalDeleted = this.collaborators.filter(collab => collab.deleted === true).length;
+      this.totalNotDeleted = this.collaborators.filter(collab => collab.deleted === false).length;
+
+      this.updateDeletedStatusChart();
+      this.updateOnlineStatusChart();
+      this.updateDoughnutChart();
+    });
+  }
 
   updateDeletedStatusChart(): void {
     if (typeof window === 'undefined') return;
@@ -178,7 +186,7 @@ export class DashboardComponent implements OnInit  {
         left: '10%',
         right: '5%',
         bottom: '10%',
-        top : '20%'
+        top: '20%'
       },
       xAxis: {
         type: 'category',
@@ -209,7 +217,6 @@ export class DashboardComponent implements OnInit  {
 
   updateOnlineStatusChart(): void {
     if (typeof window === 'undefined') return;
-
     if (!this.onlineChart?.nativeElement) return;
 
     const chart = echarts.init(this.onlineChart.nativeElement);
@@ -222,7 +229,7 @@ export class DashboardComponent implements OnInit  {
       },
       tooltip: {
         trigger: 'item',
-        formatter: '{b}: {c} ({d}%)'  // Affiche les données sous forme de pourcentage
+        formatter: '{b}: {c} ({d}%)'
       },
       legend: {
         orient: 'horizontal',
@@ -242,7 +249,6 @@ export class DashboardComponent implements OnInit  {
           label: {
             show: true,
             position: 'center',
-
             fontSize: 12,
             fontWeight: 'bold',
             formatter: '{b}: {c} ({d}%)'
@@ -318,5 +324,4 @@ export class DashboardComponent implements OnInit  {
   navigateToCollaboratorList(): void {
     this.router.navigate(['/collablist']);
   }
-
 }

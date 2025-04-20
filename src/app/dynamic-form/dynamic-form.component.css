@@ -1,54 +1,57 @@
-.presentation-container {
-  margin: 20px;
-}
-
-.add-dashboard,
-.add-card {
-  margin-bottom: 20px;
-}
-
-.add-dashboard input,
-.add-card input,
-.add-card select,
-.add-card textarea {
-  padding: 10px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  width: 250px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.dashboard-list {
-  margin-top: 20px;
-}
-
-.dashboard {
-  margin-bottom: 30px;
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #fefefe;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", sans-serif;
 }
 
-.card {
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+select,
+input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 4px #3498db55;
+}
+
+.results {
   margin-top: 20px;
-  padding: 10px;
-  background-color: #f0f0f0;
+  background: #f6f9fc;
+  padding: 10px 15px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e1e1;
 }
 
-.chart-container {
-  margin-top: 10px;
+.results ul {
+  padding-left: 18px;
+}
+
+strong {
+  color: #2c3e50;
 }

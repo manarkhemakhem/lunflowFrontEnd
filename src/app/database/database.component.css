@@ -1,10 +1,11 @@
+/* === NAVBAR === */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background-color: #2c3e50;
+  height: 50px;
+  background-color: #3a90d1;
   color: white;
   display: flex;
   align-items: center;
@@ -13,25 +14,128 @@
   z-index: 1000;
 }
 
-.db-button {
-  background-color: #3498db;
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* === BOUTONS GÉNÉRAUX === */
+button,
+.db-button,
+.btn {
+  padding: 10px 16px;
+  background-color: #3a90d1;
   color: white;
   border: none;
-  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 4px;
-  margin-right: 16px;
+  transition: background-color 0.25s ease;
 }
 
-.db-button:hover {
-  background-color: #2980b9;
+button:hover,
+.db-button:hover,
+.btn:hover {
+  background-color: #2b74aa;
 }
 
-.connection-message {
-  margin-top: 20px;
+.db-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  border: 1px solid #A5D4F5;
+}
+
+.db-button i {
   font-size: 16px;
-  color: #2c3e50;
 }
-.database-selector select {
-  min-width: 200px;
+
+/* === DIALOG OVERLAY === */
+.database-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === DIALOG BOX === */
+.database-dialog {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.database-dialog h2 {
+  font-size: 20px;
+  color: #3a90d1;
+  margin-bottom: 20px;
+}
+
+/* === ICON FERMETURE === */
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+}
+
+.close-icon:hover {
+  color: #e74c3c;
+}
+
+/* === FORMULAIRE DIALOG === */
+.db-select {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* === ACTIONS DU DIALOG === */
+.dialog-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.test-btn {
+  background-color: #A5D4F5;
+  color: #003c66;
+}
+
+.select-btn {
+  background-color: #3a90d1;
+  color: white;
+}
+
+/* === COLLECTION === */
+.collection-section {
+  margin-top: 30px;
+}
+
+.load-btn {
+  background-color: #3a90d1;
+  color: white;
+  margin-left: 10px;
+}
+
+/* === STATUS MESSAGE === */
+.status-msg {
+  font-size: 14px;
+  color: #3a90d1;
+  text-align: center;
 }

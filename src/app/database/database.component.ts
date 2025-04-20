@@ -1,69 +1,85 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatabaseService } from '../services/database.service';
 import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Importer MatDialog ici
+import { MatIconModule } from '@angular/material/icon';  // Importer MatIconModule
 
 @Component({
   selector: 'app-database',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatDialogModule
+  ]
+  ,
   templateUrl: './database.component.html',
   styleUrls: ['./database.component.css']
 })
-export class DatabaseComponent  implements OnInit {
+export class DatabaseComponent implements OnInit {
+  databases: any[] = [];
+  selectedDatabase = '';
+  selectedCollection = '';
+  data: any[] = [];
+  connectionStatus = '';
+  dialogOpened = false; // Flag pour savoir si le dialog est ouvert
 
-  databases: { name: string; uri: string }[] = [];
-  selectedDatabase: string = '';
-  selectedCollection: string = '';
-  collectionData: any[] = [];
-  connectionMessage: string = '';
+  constructor(
+    private databaseService: DatabaseService,
+    private dialog: MatDialog
+  ) {}
 
-  constructor(private databaseService: DatabaseService) {}
-
-  ngOnInit(): void {
-    // Récupérer les bases de données disponibles
-    this.databaseService.getDatabases().subscribe(
-      (data) => {
-        this.databases = data;
-      },
-      (error) => {
-        console.error('Error fetching databases', error);
-      }
-    );
+  ngOnInit() {
+    this.loadDatabases();
   }
 
-  // Tester la connexion à la base de données sélectionnée
-  onDatabaseSelect(): void {
+  loadDatabases() {
+    this.databaseService.getAllDatabases().subscribe((res) => {
+      this.databases = res;
+    });
+  }
+
+  testConnection() {
     if (this.selectedDatabase) {
       this.databaseService.testConnection(this.selectedDatabase).subscribe(
-        (message) => {
-          this.connectionMessage = message;
-          if (message.includes('successful')) {
-            console.log(`Successfully connected to ${this.selectedDatabase}`);
-          }
-        },
-        (error) => {
-          this.connectionMessage = 'Connection failed';
-          console.error('Connection failed', error);
-        }
+        res => this.connectionStatus = res,
+        err => this.connectionStatus = 'Erreur de connexion'
       );
     }
   }
 
-  // Récupérer les données de la collection sélectionnée
-  onCollectionSelect(): void {
+  loadCollectionData() {
     if (this.selectedDatabase && this.selectedCollection) {
       this.databaseService.getCollectionData(this.selectedDatabase, this.selectedCollection).subscribe(
-        (data) => {
-          this.collectionData = data;
-        },
-        (error) => {
-          console.error('Error fetching collection data', error);
-        }
+        res => this.data = res
       );
     }
   }
-  objectKeys(obj: any): string[] {
-    return Object.keys(obj);
+
+  // Ouvrir le dialog pour sélectionner la base de données
+  openDatabaseDialog() {
+    this.dialogOpened = true;
+  }
+
+  // Sélectionner une base de données et fermer le dialog
+  selectDatabase(database: string) {
+    this.selectedDatabase = database;
+    this.databaseService.setSelectedDatabase(database); // <- Ajout ici
+    this.dialogOpened = false;  // Ferme le dialog
+  }
+
+
+  // Fermer le dialog sans choisir de base
+  closeDialog() {
+    this.dialogOpened = false;
   }
 }

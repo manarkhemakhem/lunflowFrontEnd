@@ -1,15 +1,16 @@
-/* import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CollaboratorService } from '../services/collaborator.service';
-import { UserService } from '../services/user.service';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+
+/* import { CollaboratorService } from '../services/collaborator.service';
+ */import { UserService } from '../services/user.service';
 import { GroupService } from '../services/group.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChartService } from '../services/chart.service';
 import * as echarts from 'echarts';
 
 
 import { HeaderComponent } from "../header/header.component";
 import { HttpClient } from '@angular/common/http';
+import { DatabaseService } from '../services/database.service';
 
 
 @Component({
@@ -19,36 +20,50 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.css']
 })
-export class DynamicFormComponent {
-  form = { title: '', data: '' };
-chartOption: echarts.EChartsOption = {};
+export class DynamicFormComponent implements OnInit {
+  collections: string[] = ['group', 'user', 'collaborator'];
+  selectedCollection = '';
+  collectionData: any[] = [];
+  fieldNames: string[] = [];
+  selectedField = '';
+  valueForPercentage = '';
 
-@ViewChild('chartContainer') chartContainer: any;
+  groupedCountResult: { [key: string]: number } = {};
+  countResult: number | null = null;
+  percentageResult: number | null = null;
+  totalCount: number | null = null;
+  existingValues: string[] = [];
 
-constructor(private chartService: ChartService) {}
+  constructor(
+    private databaseService: DatabaseService,
+   //rivate collaboratorService: CollaboratorService
+  ) {}
 
-onFormSubmit() {
-  try {
-    const rawData = this.form.data.trim();
-    let parsedData: any;
+  ngOnInit(): void {}
+  onCollectionSelect(): void {
+    if (!this.selectedCollection) return;
 
-    if (rawData.includes('%')) {
-      parsedData = parseFloat(rawData);
-    } else if (rawData.startsWith('[')) {
-      parsedData = JSON.parse(rawData);
-    } else if (rawData.startsWith('{')) {
-      parsedData = JSON.parse(rawData);
+    this.databaseService.getCollectionData('maBaseUnique', this.selectedCollection).subscribe(
+      data => {
+        this.collectionData = data;
+      },
+      (error: any) => {
+        console.error('Erreur collection', error);
+      }
+    );
+
+
+   /*  if (this.selectedCollection === 'collaborator') {
+      this.collaboratorService.getCollaboratorFieldNames().subscribe(fields => {
+        this.fieldNames = fields;
+      });
     } else {
-      parsedData = parseFloat(rawData);
+      this.fieldNames = [];
     }
 
-    const type = this.chartService.detectChartType(parsedData);
-    this.chartOption = this.chartService.getChartOptions(type, parsedData, this.form.title);
-  } catch (e) {
-    alert('Erreur dans la saisie des données');
-    console.error(e);
+    this.selectedField = '';
   }
-}
-
-}
  */
+/*   onFieldChange(): void {
+  } */
+}}

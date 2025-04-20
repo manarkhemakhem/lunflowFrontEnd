@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./collaborator-list.component.css']
 })
 export class CollaboratorListComponent implements OnInit {
-  
+
   collaborators: any[] = [];
   pageSize: number = 20;
   currentPage: number = 1;
@@ -31,10 +31,10 @@ export class CollaboratorListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getCollaborators();
+ // this.getCollaborators();
   }
 
-  getCollaborators(): void {
+ /*  getCollaborators(): void {
     this.collaboratorService.getAllCollaborators().subscribe(
       (data) => {
         this.collaborators = data;
@@ -45,7 +45,7 @@ export class CollaboratorListComponent implements OnInit {
         console.error('Erreur de chargement des collaborateurs', error);
       }
     );
-  }
+  } */
 
   searchCollaborators(): void {
     if (!this.searchTerm.trim()) {
