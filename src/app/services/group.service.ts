@@ -1,18 +1,18 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, filter, tap } from 'rxjs/operators';
 import { Collaborator } from './collaborator.service';
+import { DatabaseService } from './database.service';
 
-// Modèle Group
 export interface Group {
   _id: string;
   label: string;
   address: string;
   idLogo: string;
-  collabIdList: string[]; // Liste des IDs des collaborateurs
-  adminIdList: string[];  // Liste des IDs des admins
-  createdBy: string;      // ID de l'utilisateur ayant créé le groupe
+  collabIdList: string[];
+  adminIdList: string[];
+  createdBy: string;
   nbCollabs: number;
   nbActifCollabs: number;
   nbCollabsMax: number;
@@ -34,45 +34,70 @@ export interface Group {
   providedIn: 'root'
 })
 export class GroupService {
-  private apiUrl = 'http://localhost:8080/api/groups';
+  private baseUrl = 'http://localhost:8080/api';
+  private databaseNameSubject = new BehaviorSubject<string>('');
+  databaseName$: Observable<string> = this.databaseNameSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
-
-
-  // Récupérer tous les groupes
-  getAllGroups(): Observable<Group[]> {
-    return this.http.get<Group[]>(`${this.apiUrl}/all`);
+  constructor(
+    private http: HttpClient,
+    private databaseService: DatabaseService
+  ) {
+    this.databaseService.selectedDatabase$
+      .pipe(
+        filter(db => !!db),
+        tap(dbName => console.log(`GroupService: Database changed to '${dbName}'`))
+      )
+      .subscribe(dbName => {
+        this.databaseNameSubject.next(dbName);
+      });
   }
 
-  // Récupérer un groupe par son ID
+  private get apiUrl(): string {
+    const databaseName = this.databaseNameSubject.getValue();
+    if (!databaseName) {
+      console.error('GroupService: No database selected. API call blocked.');
+      throw new Error('No database selected.');
+    }
+    console.log(`GroupService: Using API URL with database '${databaseName}'`);
+    return `${this.baseUrl}/${databaseName}/groups`;
+  }
+
+  getAllGroups(): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.apiUrl}/all`).pipe(
+      tap(data => console.log(`GroupService: Fetched ${data.length} groups from ${this.apiUrl}/all`)),
+      catchError(this.handleError)
+    );
+  }
 
   getGroupById(id: string): Observable<Group> {
-    return this.http.get<Group>(`${this.apiUrl}/${id}`);
+    return this.http.get<Group>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => console.log(`GroupService: Fetched group ${id} from ${this.apiUrl}/${id}`)),
+      catchError(this.handleError)
+    );
   }
-
-
-  // Gestionnaire d'erreurs pour les appels HTTP
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = '';
-
-    if (error.error instanceof ErrorEvent) {
-      // Erreur côté client
-      errorMessage = `Erreur client : ${error.error.message}`;
-    } else {
-      // Erreur côté serveur
-      errorMessage = `Erreur serveur - Code : ${error.status}, Message : ${error.message}`;
-    }
-
-    console.error(errorMessage);
-    return throwError(() => new Error(errorMessage));
-  }
-
-
 
   getCollaboratorsByGroup(groupId: string): Observable<Collaborator[]> {
-    return this.http.get<Collaborator[]>(`${this.apiUrl}/groups/${groupId}/collaborators`);
+    return this.http.get<Collaborator[]>(`${this.apiUrl}/${groupId}/collaborators`).pipe(
+      tap(() => console.log(`GroupService: Fetched collaborators for group ${groupId} from ${this.apiUrl}/${groupId}/collaborators`)),
+      catchError(this.handleError)
+    );
   }
+
   getNbWorkflowTypeByGroupId(groupId: string): Observable<number> {
-    return this.http.get<number>(`${this.apiUrl}/${groupId}/nbwrkftype`);
+    return this.http.get<number>(`${this.apiUrl}/${groupId}/nbwrkftype`).pipe(
+      tap(() => console.log(`GroupService: Fetched workflow types for group ${groupId} from ${this.apiUrl}/${groupId}/nbwrkftype`)),
+      catchError(this.handleError)
+    );
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Client error: ${error.error.message}`;
+    } else {
+      errorMessage = `Server error - Code: ${error.status}, Message: ${error.message}`;
+    }
+    console.error(`GroupService: ${errorMessage}`);
+    return throwError(() => new Error(errorMessage));
   }
 }

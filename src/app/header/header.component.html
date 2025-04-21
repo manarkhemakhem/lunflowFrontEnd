@@ -1,41 +1,38 @@
-<!-- Sidebar -->
-<div class="sidebar" [ngClass]="{ 'sidebar-open': isSidebarOpen }">
-  <!-- Logo + Toggle -->
+
+<div class="sidebar-content">
+
   <div class="sidebar-header">
-    <!-- Logo qui ne s'affiche que si la sidebar est ouverte -->
     <img *ngIf="isSidebarOpen" src="assets/lunflow.png" alt="Logo" class="logo" />
     <span class="company-name" *ngIf="isSidebarOpen">Lunar TC</span>
-
-    <!-- Bouton pour basculer la sidebar -->
     <button class="menu-toggle" (click)="toggleSidebar()">
       <i class="fas fa-bars"></i>
     </button>
   </div>
-  <!-- Navigation -->
-  <ul class="nav-links">
-    <li>
-      <a routerLink="/user" routerLinkActive="active">
-        <i class="fas fa-user"></i>
-        <span *ngIf="isSidebarOpen">Utilisateurs</span>
-      </a>
-    </li>
-    <li>
-      <a routerLink="/dashboard" routerLinkActive="active">
-        <i class="fas fa-handshake"></i>
-        <span *ngIf="isSidebarOpen">Collaborateurs</span>
-      </a>
-    </li>
-    <li>
-      <a routerLink="/group" routerLinkActive="active">
-        <i class="fas fa-users"></i>
-        <span *ngIf="isSidebarOpen">Groupes</span>
-      </a>
-    </li>
-    <li>
-      <a routerLink="/form" routerLinkActive="active">
-        <i class="fas fa-chart-pie"></i>
-        <span *ngIf="isSidebarOpen">Présentation</span>
-      </a>
-    </li>
-  </ul>
+ <!-- Navigation -->
+ <ul class="nav-links">
+  <li>
+    <a routerLink="/user" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+      <i class="fas fa-user"></i>
+      <span *ngIf="isSidebarOpen">Utilisateurs</span>
+    </a>
+  </li>
+  <li>
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+      <i class="fas fa-handshake"></i>
+      <span *ngIf="isSidebarOpen">Collaborateurs</span>
+    </a>
+  </li>
+  <li>
+    <a routerLink="/group" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+      <i class="fas fa-users"></i>
+      <span *ngIf="isSidebarOpen">Groupes</span>
+    </a>
+  </li>
+  <li>
+    <a routerLink="/form" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+      <i class="fas fa-chart-pie"></i>
+      <span *ngIf="isSidebarOpen">Présentation</span>
+    </a>
+  </li>
+</ul>
 </div>

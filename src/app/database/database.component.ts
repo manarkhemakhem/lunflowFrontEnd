@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Importer MatDialog ici
 import { MatIconModule } from '@angular/material/icon';  // Importer MatIconModule
+import { DatabaseDialogComponent } from '../database-dialog/database-dialog.component';
 
 @Component({
   selector: 'app-database',
@@ -26,12 +27,9 @@ import { MatIconModule } from '@angular/material/icon';  // Importer MatIconModu
   styleUrls: ['./database.component.css']
 })
 export class DatabaseComponent implements OnInit {
-  databases: any[] = [];
-  selectedDatabase = '';
-  selectedCollection = '';
+  selectedDatabase: string = '';
+  selectedCollection: string = '';
   data: any[] = [];
-  connectionStatus = '';
-  dialogOpened = false; // Flag pour savoir si le dialog est ouvert
 
   constructor(
     private databaseService: DatabaseService,
@@ -39,47 +37,28 @@ export class DatabaseComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadDatabases();
+    // No need to load databases; handled in DatabaseDialogComponent
   }
 
-  loadDatabases() {
-    this.databaseService.getAllDatabases().subscribe((res) => {
-      this.databases = res;
+  openDatabaseDialog() {
+    const dialogRef = this.dialog.open(DatabaseDialogComponent, {
+      height: '400px',
+      width: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectedDatabase = result;
+        this.databaseService.setSelectedDatabase(result);
+      }
     });
   }
 
-  testConnection() {
-    if (this.selectedDatabase) {
-      this.databaseService.testConnection(this.selectedDatabase).subscribe(
-        res => this.connectionStatus = res,
-        err => this.connectionStatus = 'Erreur de connexion'
-      );
-    }
-  }
-
-  loadCollectionData() {
+  /* loadCollectionData() {
     if (this.selectedDatabase && this.selectedCollection) {
       this.databaseService.getCollectionData(this.selectedDatabase, this.selectedCollection).subscribe(
         res => this.data = res
       );
     }
-  }
-
-  // Ouvrir le dialog pour sélectionner la base de données
-  openDatabaseDialog() {
-    this.dialogOpened = true;
-  }
-
-  // Sélectionner une base de données et fermer le dialog
-  selectDatabase(database: string) {
-    this.selectedDatabase = database;
-    this.databaseService.setSelectedDatabase(database); // <- Ajout ici
-    this.dialogOpened = false;  // Ferme le dialog
-  }
-
-
-  // Fermer le dialog sans choisir de base
-  closeDialog() {
-    this.dialogOpened = false;
-  }
+  } */
 }

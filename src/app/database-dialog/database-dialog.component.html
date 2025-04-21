@@ -1,0 +1,25 @@
+<div class="database-dialog">
+  <button class="close-icon" (click)="closeDialog()" aria-label="Fermer">
+    <i class="fa fa-times"></i>
+  </button>
+
+  <h2>Sélectionner une base de données</h2>
+
+  <mat-form-field appearance="fill" class="db-select">
+    <mat-label>Base de données</mat-label>
+    <mat-select [(ngModel)]="selectedDatabase">
+      <mat-option *ngFor="let db of databases" [value]="db.name">
+        {{ db.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="dialog-actions">
+    <button class="btn test-btn" (click)="testConnection()">Tester la connexion</button>
+    <p *ngIf="connectionStatus" class="status-msg">{{ connectionStatus }}</p>
+
+    <div class="dialog-buttons">
+      <button class="btn select-btn" (click)="selectDatabase()">Sélectionner</button>
+    </div>
+  </div>
+</div>

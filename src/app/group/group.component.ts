@@ -1,155 +1,130 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-//import { Collaborator, CollaboratorService } from '../services/collaborator.service';
-import { GroupService, Group } from '../services/group.service';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from "../header/header.component";
+import { HeaderComponent } from '../header/header.component';
+import { DatabaseComponent } from '../database/database.component';
+import { GroupService, Group } from '../services/group.service';
+import { CollaboratorService } from '../services/collaborator.service';
+import { DatabaseService } from '../services/database.service';
 import * as echarts from 'echarts';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-group',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, HeaderComponent, DatabaseComponent],
   templateUrl: './group.component.html',
   styleUrls: ['./group.component.css']
 })
-export class GroupComponent implements OnInit, AfterViewInit {
-
+export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('collaboratorsChart', { static: false }) chartElement!: ElementRef;
   @ViewChild('addressChart', { static: false }) addressChartElement!: ElementRef;
-  @ViewChild('workflowChart', { static: true }) workflowChartElement!: ElementRef;
-  @ViewChild('histogramChart', { static: false }) histogramChartElement!: ElementRef; // Ajouté
-
+  @ViewChild('workflowChart', { static: false }) workflowChartElement!: ElementRef;
+  @ViewChild('histogramChart', { static: false }) histogramChartElement!: ElementRef;
 
   groups: Group[] = [];
   totalGroups: number = 0;
-  collaboratorsCountByGroup: { groupLabel: string, count: number }[] = [];
-  groupsByAddress: { address: string, count: number }[] = [];
-
+  collaboratorsCountByGroup: { groupLabel: string; count: number }[] = [];
+  groupsByAddress: { address: string; count: number }[] = [];
   errorMessage: string = '';
+  currentDatabase: string = '';
+  private databaseSubscription!: Subscription;
 
   constructor(
     private groupService: GroupService,
-    //private collaboratorService: CollaboratorService
+    private collaboratorService: CollaboratorService,
+    private databaseService: DatabaseService
   ) {}
 
   ngOnInit(): void {
+    this.databaseSubscription = this.databaseService.selectedDatabase$
+      .pipe(filter(db => !!db))
+      .subscribe(db => {
+        console.log(`GroupComponent: Switching to database '${db}'`);
+        this.currentDatabase = db;
+        this.loadGroupData();
+      });
+  }
 
-    this.groupService.getAllGroups().subscribe(
-      (data) => {
+  ngAfterViewInit(): void {
+    this.checkAndUpdateCharts();
+  }
+
+  ngOnDestroy(): void {
+    if (this.databaseSubscription) {
+      this.databaseSubscription.unsubscribe();
+    }
+  }
+
+  private loadGroupData(): void {
+    this.groups = [];
+    this.totalGroups = 0;
+    this.collaboratorsCountByGroup = [];
+    this.groupsByAddress = [];
+    this.errorMessage = '';
+
+    console.log(`GroupComponent: Fetching groups for database '${this.currentDatabase}'`);
+    this.groupService.getAllGroups().subscribe({
+      next: (data) => {
         this.groups = data;
         this.totalGroups = data.length;
+        console.log(`GroupComponent: Received ${data.length} groups for database '${this.currentDatabase}'`, data);
 
         this.loadCollaboratorsData();
         this.loadGroupsByAddress();
-        this.loadworkflowChart();
-        this.updateGroupBarChart(this.groups);
-
+        this.checkAndUpdateCharts();
       },
-
-      (error) => {
-        this.errorMessage = 'Erreur lors de la récupération des groupes';
-        console.error('Erreur:', error);
+      error: (error) => {
+        this.errorMessage = `Erreur lors de la récupération des groupes: ${error.message}`;
+        console.error(`GroupComponent: Error fetching groups for database '${this.currentDatabase}'`, error);
       }
-    );
-  }
-  ngAfterViewInit(): void {
-    if (typeof window !== 'undefined') {
-      this.loadChart();
-      this.loadAddressChart();  // Charger le graphique Doughnut après la vue initialisée
-    }
-    setTimeout(() => {
-      this.loadChart();
-      this.loadAddressChart();
-      this.updateGroupBarChart(this.groups); // 👈 en backup après DOM totalement prêt
-
-    }, 500);
+    });
   }
 
-  loadCollaboratorsData(): void {
+  private loadCollaboratorsData(): void {
     this.collaboratorsCountByGroup = this.groups.map(group => ({
       groupLabel: group.label,
       count: group.nbCollabs
     }));
-
   }
-  loadGroupsByAddress(): void {
+
+  private loadGroupsByAddress(): void {
     const addressMap = this.groups.reduce((acc, group) => {
       const address = group.address || 'Inconnue';
-      if (!acc[address]) {
-        acc[address] = 0;
-      }
-      acc[address]++;
+      acc[address] = (acc[address] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    // Convertir le map en un tableau de {address, count}
     this.groupsByAddress = Object.keys(addressMap).map(address => ({
       address,
       count: addressMap[address]
     }));
   }
 
-  loadAddressChart(): void {
-    if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
+  private checkAndUpdateCharts(): void {
+    if (typeof window === 'undefined' || !this.groups.length) {
+      console.log(`GroupComponent: Skipping chart update (no groups or server-side)`);
+      return;
+    }
 
-    const chart = echarts.init(this.addressChartElement.nativeElement);
-    const blueColors = ['#476B9E', '#3a90d1', '#A5D4F5', '#cadeee'];
-
-    const option = {
-      title: {
-        text: 'Répartition des Groupes par Pays',
-        left: 'center',
-        textStyle: { fontSize: 18, fontWeight: 'bold' }
-
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c} ({d}%)'
-      },
-      legend: {
-        top: '80%',
-        left: 'center',
-      },
-      series: [{
-        type: 'pie',
-        radius: ['35%', '70%'],
-        center: ['50%', '50%'],
-        startAngle: 180,
-        endAngle: 360,
-        data:
-        this.groupsByAddress.map((item, index) =>
-          ({
-          value: item.count,
-          name: item.address,
-          itemStyle: { color: blueColors[index % blueColors.length] }
-        })),
-        label: {
-          show: true,
-          position: 'outside',
-          formatter: '{b}: {c} ({d}%)',
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: '#000'
-        }
-
-
-      }]
-    };
-    chart.setOption(option);
+    console.log(`GroupComponent: Updating charts for database '${this.currentDatabase}'`);
+    this.loadChart();
+    this.loadAddressChart();
+    this.loadWorkflowChart();
+    this.updateGroupBarChart(this.groups);
   }
 
-  loadChart(): void {
-    if (typeof window === 'undefined') return;  // Vérifie que le code est exécuté côté client
+  private loadChart(): void {
+    if (!this.chartElement?.nativeElement) return;
 
     const chart = echarts.init(this.chartElement.nativeElement);
     const option = {
       title: {
         text: 'Répartition des Collaborateurs par Groupe',
-        left: 'center'
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
       },
-      tooltip: {
-        trigger: 'item'
-      },
+      tooltip: { trigger: 'axis' },
       xAxis: {
         type: 'category',
         data: this.collaboratorsCountByGroup.map(item => item.groupLabel),
@@ -161,15 +136,13 @@ export class GroupComponent implements OnInit, AfterViewInit {
           color: '#333'
         }
       },
-      yAxis: {
-        type: 'value',
-      },
+      yAxis: { type: 'value' },
       series: [{
         data: this.collaboratorsCountByGroup.map(item => item.count),
         type: 'bar',
         color: '#3a90d1',
-        barWidth: '60%',  // Agrandir la largeur des barres
-        barCategoryGap: '20%',  // Ajouter de l'espace entre les barres
+        barWidth: '60%',
+        barCategoryGap: '20%',
         label: {
           show: true,
           position: 'insideTop',
@@ -182,9 +155,52 @@ export class GroupComponent implements OnInit, AfterViewInit {
     chart.setOption(option);
   }
 
+  private loadAddressChart(): void {
+    if (!this.addressChartElement?.nativeElement) return;
 
-  loadworkflowChart(): void {
-    if (typeof window === 'undefined' || !this.workflowChartElement) return;
+    const chart = echarts.init(this.addressChartElement.nativeElement);
+    const blueColors = ['#476B9E', '#3a90d1', '#A5D4F5', '#cadeee'];
+
+    const option = {
+      title: {
+        text: 'Répartition des Groupes par Pays',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} ({d}%)'
+      },
+      legend: {
+        top: '80%',
+        left: 'center'
+      },
+      series: [{
+        type: 'pie',
+        radius: ['35%', '70%'],
+        center: ['50%', '50%'],
+        startAngle: 180,
+        endAngle: 360,
+        data: this.groupsByAddress.map((item, index) => ({
+          value: item.count,
+          name: item.address,
+          itemStyle: { color: blueColors[index % blueColors.length] }
+        })),
+        label: {
+          show: true,
+          position: 'outside',
+          formatter: '{b}: {c} ({d}%)',
+          fontSize: 12,
+          fontWeight: 'bold',
+          color: '#000'
+        }
+      }]
+    };
+    chart.setOption(option);
+  }
+
+  private loadWorkflowChart(): void {
+    if (!this.workflowChartElement?.nativeElement) return;
 
     const chart = echarts.init(this.workflowChartElement.nativeElement);
     const labels = this.groups.map(g => g.label);
@@ -192,46 +208,39 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
     const option = {
       title: {
-        text: 'Nombre de workflows par groupe',
-        left: 'center'
+        text: 'Nombre de Workflows par Groupe',
+        left: 'center',
+        textStyle: { fontSize: 18, fontWeight: 'bold' }
       },
-      tooltip: {
-        trigger: 'axis'
-      },
+      tooltip: { trigger: 'axis' },
       xAxis: {
         type: 'category',
         data: labels,
-        axisLabel: {
-          rotate: 30
-        }
+        axisLabel: { rotate: 30, fontSize: 10 }
       },
-      yAxis: {
-        type: 'value'
-      },
+      yAxis: { type: 'value' },
       series: [{
         name: 'Workflows',
-        type: 'line',  // Utiliser un graphique en ligne
+        type: 'line',
         data: values,
-        itemStyle: {
-          color: '#A5D4F5'
-        }
+        itemStyle: { color: '#A5D4F5' }
       }]
     };
 
     chart.setOption(option);
   }
-  updateGroupBarChart(groups: Group[]): void {
-    if (typeof window === 'undefined' || !this.histogramChartElement) return;
+
+  private updateGroupBarChart(groups: Group[]): void {
+    if (!this.histogramChartElement?.nativeElement) return;
 
     const chart = echarts.init(this.histogramChartElement.nativeElement);
-
     const groupLabels = groups.map(group => group.label);
     const currentCollabs = groups.map(group => group.nbCollabs);
     const maxCollabs = groups.map(group => group.nbCollabsMax);
 
     const option = {
       title: {
-        text: 'Nombre de collaborateurs par groupe',
+        text: 'Nombre de Collaborateurs par Groupe',
         left: 'center',
         textStyle: { fontSize: 18, fontWeight: 'bold' }
       },
@@ -249,16 +258,11 @@ export class GroupComponent implements OnInit, AfterViewInit {
         bottom: '10%',
         containLabel: true
       },
-      xAxis: {
-        type: 'value'
-      },
+      xAxis: { type: 'value' },
       yAxis: {
         type: 'category',
         data: groupLabels,
-        axisLabel: {
-          fontSize: 12,
-          fontWeight: 'bold'
-        }
+        axisLabel: { fontSize: 12, fontWeight: 'bold' }
       },
       series: [
         {
@@ -280,5 +284,4 @@ export class GroupComponent implements OnInit, AfterViewInit {
 
     chart.setOption(option);
   }
-
 }

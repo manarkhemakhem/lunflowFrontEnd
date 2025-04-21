@@ -1,46 +1,111 @@
-<!--
+<div class="main-container">
+  <app-database></app-database>
+  <app-header></app-header>
+  <!-- Contenu principal du Dashboard -->
+  <div class="main-content">
+    <div class="fullscreen-dashboard">
+      <div class="form-card">
+        <h2 class="form-title"><i class="fas fa-chart-line"></i> Analyse de collection</h2>
 
-<div>
-  <label for="classSelect">Sélectionnez une classe:</label>
-  <select id="classSelect" [(ngModel)]="selectedClass" (change)="loadClassData()">
-    <option value="collaborators">Collaborators</option>
-    <option value="users">Users</option>
-    <option value="groups">Groups</option>
-  </select>
-</div>
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-<div *ngIf="availableAttributes.length > 0">
-  <div *ngFor="let attribute of selectedAttributes; let i = index">
-    <label for="attributeSelect{{i}}">Sélectionnez attribut {{i + 1}} :</label>
+        <!-- Indicateur de chargement -->
+        <div *ngIf="isLoading" class="loading">
+          <i class="fas fa-spinner fa-spin"></i> Chargement...
+        </div>
 
+        <!-- Formulaire -->
+        <div class="form-container">
+          <!-- Sélection du mode d'affichage -->
+          <div class="form-group">
+            <label for="displayMode" class="form-label">Mode d'affichage :</label>
+            <div class="select-wrapper">
+              <select
+                id="displayMode"
+                [(ngModel)]="displayMode"
+                (ngModelChange)="onDisplayModeChange()"
+                name="displayMode"
+                class="form-select"
+              >
+                <option value="chart">Graphique</option>
+                <option value="table">Tableau</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
 
-    <select id="attributeSelect{{i}}" [(ngModel)]="selectedAttributes[i]" (change)="onAttributeChange(i)">
-      <option *ngFor="let attribute of availableAttributes" [value]="attribute">
-        {{ attribute }}
-      </option>
-    </select>
+          <!-- Sélection de la collection -->
+          <div class="form-group">
+            <label for="collectionSelect" class="form-label">Collection :</label>
+            <div class="select-wrapper">
+              <select
+                id="collectionSelect"
+                [(ngModel)]="selectedCollection"
+                (ngModelChange)="onCollectionSelect()"
+                name="collectionSelect"
+                [disabled]="!databaseName"
+                class="form-select"
+              >
+                <option value="" disabled>Sélectionnez une collection</option>
+                <option *ngFor="let col of collections" [value]="col">{{ col }}</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
 
-    <i class="fa fa-times" (click)="removeAttribute(i)" style="cursor: pointer; color: red;"></i>
-  </div>
+          <!-- Sélection du champ -->
+          <div class="form-group" *ngIf="fieldNames.length > 0">
+            <label for="fieldSelect" class="form-label">Champ :</label>
+            <div class="select-wrapper">
+              <select
+                id="fieldSelect"
+                [(ngModel)]="selectedField"
+                (ngModelChange)="onFieldChange()"
+                name="fieldSelect"
+                class="form-select"
+              >
+                <option value="" disabled>Sélectionnez un champ</option>
+                <option *ngFor="let field of fieldNames" [value]="field">{{ field }}</option>
+              </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+          </div>
+        </div>
 
+        <!-- Conteneur du graphique -->
+        <div class="chart-container" *ngIf="showChart && displayMode === 'chart'">
+          <div #chart class="chart"></div>
+        </div>
 
-  <i class="fa fa-plus" (click)="addAttribute()" style="cursor: pointer; color: green; font-size: 20px;"></i>
-</div>
- -->
- <div class="container">
-  <h2>📊 Analyse de collection</h2>
+        <!-- Conteneur du tableau -->
+        <div class="table-container" *ngIf="displayMode === 'table' && hasData()">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th *ngFor="let column of visibleColumns">
+                  {{ column }}
+                  <i
+                    class="fas fa-times remove-column"
+                    (click)="removeColumn(column)"
+                    title="Supprimer la colonne"
+                  ></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td *ngFor="let column of visibleColumns">{{ groupedCountResult[column] || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-  <div class="form-group">
-    <label>Collection :</label>
-    <select [(ngModel)]="selectedCollection" (change)="onCollectionSelect()">
-      <option *ngFor="let col of collections" [value]="col">{{ col }}</option>
-    </select>
-  </div>
-
-  <div class="form-group" *ngIf="fieldNames.length > 0">
-    <label>Champ :</label>
-   <!--  <select [(ngModel)]="selectedField" (change)="onFieldChange()">
-      <option *ngFor="let field of fieldNames" [value]="field">{{ field }}</option>
-    </select> -->
+        <!-- Message si aucune donnée -->
+        <div class="no-data" *ngIf="displayMode === 'table' && !hasData()">
+          Aucune donnée à afficher dans le tableau.
+        </div>
+      </div>
+    </div>
   </div>
 </div>

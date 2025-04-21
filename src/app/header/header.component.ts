@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { DashboardComponent } from "../collaborator/dashboard.component";
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -12,14 +12,13 @@ import { RouterModule } from '@angular/router';
 })
 export class HeaderComponent {
   isSidebarOpen = false;
-  
+
+  @Output() sidebarToggled = new EventEmitter<boolean>();
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
-    const menuButton = document.querySelector('.menu-toggle');
-    if (menuButton) {
-      menuButton.classList.toggle('active', this.isSidebarOpen);
-    }
+    this.sidebarToggled.emit(this.isSidebarOpen);
+  }
   }
 
-}
+

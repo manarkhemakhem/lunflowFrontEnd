@@ -28,19 +28,22 @@ export class CollaboratorService {
     private http: HttpClient,
     private databaseService: DatabaseService
   ) {
-    // Écoute les changements de base de données
     this.databaseService.selectedDatabase$
       .pipe(filter(db => !!db)) // Ignore les valeurs vides
       .subscribe((dbName) => {
+        console.log('Base de données sélectionnée dans le service :', dbName);
         this.databaseName = dbName;
-        console.log('Base de données sélectionnée pour les collaborateurs :', dbName);
+
       });
   }
 
   private get apiUrl(): string {
+
     if (!this.databaseName) {
-      throw new Error("Aucune base de données sélectionnée.");
+
+      console.error('Aucune base de données sélectionnée dans le service');
     }
+
     return `${this.baseUrl}/${this.databaseName}/collaborators`;
   }
 
@@ -89,5 +92,14 @@ export class CollaboratorService {
   searchByFullname(fullname: string): Observable<Collaborator[]> {
     if (!fullname.trim()) throw new Error("Le nom ne peut pas être vide ou null");
     return this.http.get<Collaborator[]>(`${this.apiUrl}/search?fullname=${fullname.trim()}`);
+  }
+  // New methods for missing endpoints
+  getCollaboratorFieldNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/fields`);
+  }
+
+  countByField(fieldName: string): Observable<{ [key: string]: number }> {
+    if (!fieldName.trim()) throw new Error("Field name cannot be empty or null");
+    return this.http.get<{ [key: string]: number }>(`${this.apiUrl}/count-by-field/${encodeURIComponent(fieldName.trim())}`);
   }
 }

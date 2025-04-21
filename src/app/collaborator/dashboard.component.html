@@ -1,13 +1,16 @@
 <div class="main-container">
-  <app-database></app-database>
- <app-header></app-header> 
-  <!-- Contenu principal du Dashboard -->
+  <div class="header">
+    <app-database></app-database>
+  </div>
+  <div class="sidebar" [ngClass]="{'sidebar-open': isSidebarOpen}">
+    <app-header (sidebarToggled)="onSidebarToggled($event)"></app-header>
+  </div>
   <div class="main-content">
     <div class="fullscreen-dashboard">
       <!-- Colonne 1 : Statistiques -->
       <div class="column stats-column">
         <div class="stat-card blue">
-        <!--   <i class="fas fa-list list-icon" title="Voir la liste" (click)="navigateToCollaboratorList()"></i> -->
+          <i class="fas fa-list list-icon" title="Voir la liste" (click)="navigateToCollaboratorList()"></i>
           <i class="fas fa-users icon"></i>
           <h2>Collaborateurs</h2>
           <h1>{{ totalCollaborators }}</h1>
@@ -23,7 +26,6 @@
           <h1>{{ totalNotAdmins }}</h1>
         </div>
       </div>
-
       <!-- Colonne 2 : Graphiques -->
       <div class="column chart-column">
         <div class="chart-card">
@@ -33,7 +35,6 @@
           <div #histogramChart class="chart"></div>
         </div>
       </div>
-
       <!-- Colonne 3 : Graphiques -->
       <div class="column chart-column">
         <div class="chart-card">

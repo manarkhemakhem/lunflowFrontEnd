@@ -17,7 +17,13 @@ export class DatabaseService {
   constructor(private http: HttpClient) {}
   setSelectedDatabase(databaseName: string): void {
     this.selectedDatabaseSubject.next(databaseName);
+    console.log("work in ",this.selectedDatabase$)
   }
+
+  getSelectedDatabase(): string {
+    return this.selectedDatabaseSubject.getValue();
+  }
+
  getAllDatabases() {
     return this.http.get<any[]>('http://localhost:8080/api/database/all');
   }
@@ -29,4 +35,5 @@ export class DatabaseService {
   getCollectionData(databaseName: string, collectionName: string) {
     return this.http.get<any[]>(`http://localhost:8080/api/database/${databaseName}/${collectionName}`);
   }
+
 }

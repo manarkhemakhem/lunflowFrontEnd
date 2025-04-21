@@ -1,6 +1,8 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, filter, map, tap } from 'rxjs/operators';
+import { DatabaseService } from './database.service';
 
 export interface User {
   id: string;
@@ -8,7 +10,7 @@ export interface User {
   lastname: string;
   username: string;
   email: string;
-  creationDate: Date;
+  creationDate: string; // Matches LocalDateTime serialized as ISO 8601 string
   dateTimeModification: string;
   enterPassword: boolean;
   administrator: boolean;
@@ -32,46 +34,116 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
+  private baseUrl = 'http://localhost:8080/api';
+  private databaseNameSubject = new BehaviorSubject<string>('');
+  databaseName$: Observable<string> = this.databaseNameSubject.asObservable();
 
-  private apiUrl = 'http://localhost:8080/api/users'; // Change selon ton backend
+  constructor(
+    private http: HttpClient,
+    private databaseService: DatabaseService
+  ) {
+    this.databaseService.selectedDatabase$
+      .pipe(
+        filter(db => !!db),
+        tap(dbName => console.log(`UserService: Database changed to '${dbName}'`))
+      )
+      .subscribe(dbName => {
+        this.databaseNameSubject.next(dbName);
+        console.log(`UserService: Updated databaseNameSubject to '${dbName}'`);
+      });
+  }
 
-  constructor(private http: HttpClient) {}
+  private get apiUrl(): string {
+    const databaseName = this.databaseNameSubject.getValue();
+    if (!databaseName) {
+      console.error('UserService: No database selected. API call blocked.');
+      throw new Error('No database selected.');
+    }
+    console.log(`UserService: Constructing API URL with database '${databaseName}'`);
+    return `${this.baseUrl}/${databaseName}/users`;
+  }
 
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/all`);
+    const url = `${this.apiUrl}/all`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.get<User>(url).pipe(
+      tap(() => console.log(`UserService: Fetched user ${id} from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getConfirmedUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/confirmed`);
+    const url = `${this.apiUrl}/confirmed`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} confirmed users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getNotConfirmedUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/NotConfirmed`);
+    const url = `${this.apiUrl}/NotConfirmed`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} not confirmed users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getBlockedUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/blocked`);
+    const url = `${this.apiUrl}/blocked`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} blocked users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getNotBlockedUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/notBlocked`);
+    const url = `${this.apiUrl}/notBlocked`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} not blocked users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getAdminUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/administrator`);
+    const url = `${this.apiUrl}/administrator`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} admin users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
 
   getNonAdminUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/notadministrator`);
+    const url = `${this.apiUrl}/notadministrator`;
+    return this.http.get<User[]>(url).pipe(
+      tap(data => console.log(`UserService: Fetched ${data.length} non-admin users from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
   }
+
   getDateCreation(): Observable<Date[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/dateCreation`)
-      .pipe(
-        map(dates => dates.map(date => new Date(date))) // Convertir les dates sous forme de chaîne en objets Date
-      );
-}
+    const url = `${this.apiUrl}/dateCreation`;
+    return this.http.get<string[]>(url).pipe(
+      map(dates => dates.map(date => new Date(date))), // Parse ISO 8601 strings
+      tap(() => console.log(`UserService: Fetched creation dates from ${url}`)),
+      catchError(error => this.handleError(error, url))
+    );
+  }
+
+  private handleError(error: HttpErrorResponse, url: string): Observable<never> {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Client error: ${error.error.message}`;
+    } else {
+      errorMessage = `Server error - Code: ${error.status}, Message: ${error.message}, URL: ${url}`;
+    }
+    console.error(`UserService: ${errorMessage}`);
+    return throwError(() => new Error(errorMessage));
+  }
 }

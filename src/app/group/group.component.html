@@ -1,11 +1,14 @@
-
+<div class="main-container">
+<app-database></app-database>
   <app-header></app-header>
+   <!-- Contenu principal du Dashboard -->
+   <div class="main-content">
   <div class="fullscreen-dashboard">
     <!-- Colonne 1 : Statistiques -->
     <div class="column stats-column">
       <div class="stat-card blue">
         <i class="fas fa-users icon"></i>
-        <h3>Nombre Total de Groupes</h3>
+        <h2>Groupes</h2>
         <h1>{{ totalGroups }}</h1>
       </div>
     </div>
@@ -32,3 +35,5 @@
     </div>
   </div>
 
+   </div>
+</div>
