@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../header/header.component';
-import { DatabaseComponent } from '../database/database.component';
+import {  SidenavComponent } from '../Sidenav/Sidenav.component';
+import { DatabaseComponent } from '../header/database/database.component';
 import { UserService, User } from '../services/user.service';
 import { DatabaseService } from '../services/database.service';
 import { Subscription } from 'rxjs';
@@ -11,7 +11,7 @@ import * as echarts from 'echarts';
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, DatabaseComponent],
+  imports: [CommonModule, DatabaseComponent, SidenavComponent],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
@@ -213,8 +213,8 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
           data: [
-            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: '#A5D4F5' } },
-            { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#cadeee' } }
+            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: ' #f13529' } },
+            { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#93C5FD' } }
           ]
         }
       ]
@@ -239,8 +239,8 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
           label: { show: true, formatter: '{b}: {d}%', position: 'outside' },
           emphasis: { label: { show: true, fontWeight: 'bold' } },
           data: [
-            { value: this.blockedCount, name: 'Bloqués', itemStyle: { color: '#3a90d1' } },
-            { value: this.notBlockedCount, name: 'Non Bloqués', itemStyle: { color: '#cadeee' } }
+            { value: this.blockedCount, name: 'Bloqués', itemStyle: { color: '#f13529' } },
+            { value: this.notBlockedCount, name: 'Non Bloqués', itemStyle: { color: '#93C5FD' } }
           ]
         }
       ]
@@ -262,7 +262,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
           name: 'Nombre',
           type: 'bar',
           data: [this.nonAdminCount, this.adminCount],
-          itemStyle: { color: (params: any) => (params.dataIndex === 1 ? '#A5D4F5' : '#3a90d1') },
+          itemStyle: { color: (params: any) => (params.dataIndex === 1 ? '#1E3A8A' : '#ecca1f') },
           label: { show: true, position: 'right' }
         }
       ]
@@ -308,7 +308,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
           name: 'Utilisateurs',
           type: 'bar',
           data: seriesData,
-          itemStyle: { color: '#3a90d1' },
+          itemStyle: { color: '#1E3A8A' },
           label: {
             show: true,
             position: 'inside',

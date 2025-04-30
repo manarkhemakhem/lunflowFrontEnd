@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CollaboratorService } from '../services/collaborator.service';
 import { Router } from '@angular/router';
-import { HeaderComponent } from "../header/header.component";
+import {  SidenavComponent } from "../Sidenav/Sidenav.component";
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DatabaseComponent } from "../header/database/database.component";
 @Component({
   selector: 'app-collaborator-list',
   standalone: true,
-  imports: [HeaderComponent,CommonModule,FormsModule],
+  imports: [ CommonModule, FormsModule, DatabaseComponent, SidenavComponent],
   templateUrl: './collaborator-list.component.html',
   styleUrls: ['./collaborator-list.component.css']
 })

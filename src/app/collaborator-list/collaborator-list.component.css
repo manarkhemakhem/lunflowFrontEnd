@@ -235,3 +235,25 @@ h2 {
 .back-button:hover {
   background-color: #3178b3;
 }
+/* Container principal */
+.main-container {
+  display: flex;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+  margin-top: 60px;
+  overflow: hidden;
+}
+
+/* Contenu principal */
+.main-content {
+  flex: 1;
+  margin-left: 60px;
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
+  box-sizing: border-box;
+}

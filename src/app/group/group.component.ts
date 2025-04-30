@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../header/header.component';
-import { DatabaseComponent } from '../database/database.component';
+import {  SidenavComponent } from '../Sidenav/Sidenav.component';
+import { DatabaseComponent } from '../header/database/database.component';
 import { GroupService, Group } from '../services/group.service';
 import { CollaboratorService } from '../services/collaborator.service';
 import { DatabaseService } from '../services/database.service';
@@ -12,7 +12,7 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-group',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, DatabaseComponent],
+  imports: [CommonModule, DatabaseComponent, SidenavComponent],
   templateUrl: './group.component.html',
   styleUrls: ['./group.component.css']
 })
@@ -140,7 +140,7 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
       series: [{
         data: this.collaboratorsCountByGroup.map(item => item.count),
         type: 'bar',
-        color: '#3a90d1',
+        color: '#1E3A8A ',
         barWidth: '60%',
         barCategoryGap: '20%',
         label: {
@@ -159,7 +159,7 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.addressChartElement?.nativeElement) return;
 
     const chart = echarts.init(this.addressChartElement.nativeElement);
-    const blueColors = ['#476B9E', '#3a90d1', '#A5D4F5', '#cadeee'];
+    const blueColors = ['#1E3A8A', '#f13529', '#ecca1f', '#cadeee'];
 
     const option = {
       title: {
@@ -270,14 +270,14 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
           type: 'bar',
           stack: 'total',
           data: currentCollabs,
-          itemStyle: { color: '#cadeee' }
+          itemStyle: { color: '#ecca1f' }
         },
         {
           name: 'Maximum Autorisé',
           type: 'bar',
           stack: 'total',
           data: maxCollabs,
-          itemStyle: { color: '#3a90d1' }
+          itemStyle: { color: '#93C5FD' }
         }
       ]
     };

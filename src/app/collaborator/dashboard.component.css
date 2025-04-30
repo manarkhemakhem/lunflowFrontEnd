@@ -183,3 +183,26 @@
     max-width: 100%;
   }
 }
+.export-section {
+  margin: 20px;
+  text-align: right;
+}
+
+.export-btn {
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.export-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.export-btn:hover:not(:disabled) {
+  background-color: #2563eb;
+}

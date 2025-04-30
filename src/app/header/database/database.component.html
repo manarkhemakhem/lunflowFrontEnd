@@ -1,0 +1,14 @@
+<header class="navbar">
+  <div class="nav-left">
+<!--     <button class="menu-toggle" (click)="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button> -->
+    <h2>Lunar TC</h2>
+  </div>
+  <div class="nav-right">
+    <button class="db-button" (click)="openDatabaseDialog()">
+      <i class="fas fa-database"></i>
+      {{ selectedDatabase || 'Choisir une base' }}
+    </button>
+  </div>
+</header>

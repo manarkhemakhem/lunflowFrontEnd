@@ -1,95 +1,219 @@
+
 <div class="main-container">
   <app-database></app-database>
-  <app-header></app-header>
-  <!-- Contenu principal du Dashboard -->
+  <app-Sidenav></app-Sidenav>
+
   <div class="main-content">
     <div class="fullscreen-dashboard">
       <div class="form-card">
         <h2 class="form-title"><i class="fas fa-chart-line"></i> Analyse de collection</h2>
 
-        <!-- Message d'erreur -->
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-        <!-- Indicateur de chargement -->
-        <div *ngIf="isLoading" class="loading">
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-message" role="alert" aria-live="assertive">{{ errorMessage }}</div>
+
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="loading" aria-live="polite">
           <i class="fas fa-spinner fa-spin"></i> Chargement...
         </div>
 
-        <!-- Formulaire -->
-        <div class="form-container">
-          <!-- Sélection du mode d'affichage -->
+        <!-- Form -->
+        <form class="form-container" (ngSubmit)="applyFilter()" novalidate>
+          <!-- Display Mode Selection -->
           <div class="form-group">
             <label for="displayMode" class="form-label">Mode d'affichage :</label>
             <div class="select-wrapper">
               <select
                 id="displayMode"
                 [(ngModel)]="displayMode"
-                (ngModelChange)="onDisplayModeChange()"
                 name="displayMode"
+                (ngModelChange)="onDisplayModeChange()"
                 class="form-select"
+                aria-describedby="displayModeHelp"
               >
                 <option value="chart">Graphique</option>
                 <option value="table">Tableau</option>
               </select>
               <i class="fas fa-chevron-down select-icon"></i>
             </div>
+            <small id="displayModeHelp" class="form-text">Choisissez le mode de visualisation des données.</small>
           </div>
 
-          <!-- Sélection de la collection -->
+          <!-- Collection Selection -->
           <div class="form-group">
             <label for="collectionSelect" class="form-label">Collection :</label>
             <div class="select-wrapper">
               <select
                 id="collectionSelect"
                 [(ngModel)]="selectedCollection"
-                (ngModelChange)="onCollectionSelect()"
                 name="collectionSelect"
+                (ngModelChange)="onCollectionSelect()"
                 [disabled]="!databaseName"
                 class="form-select"
+                aria-describedby="collectionSelectHelp"
+                required
               >
                 <option value="" disabled>Sélectionnez une collection</option>
-                <option *ngFor="let col of collections" [value]="col">{{ col }}</option>
+                <option *ngFor="let col of collections" [value]="col">{{ col | titlecase }}</option>
               </select>
               <i class="fas fa-chevron-down select-icon"></i>
             </div>
+            <small id="collectionSelectHelp" class="form-text">Sélectionnez une collection dans la base de données.</small>
           </div>
 
-          <!-- Sélection du champ -->
+          <!-- Field Selection -->
           <div class="form-group" *ngIf="fieldNames.length > 0">
             <label for="fieldSelect" class="form-label">Champ :</label>
             <div class="select-wrapper">
               <select
                 id="fieldSelect"
                 [(ngModel)]="selectedField"
-                (ngModelChange)="onFieldChange()"
                 name="fieldSelect"
+                (ngModelChange)="onFieldChange()"
                 class="form-select"
+                aria-describedby="fieldSelectHelp"
+                required
               >
                 <option value="" disabled>Sélectionnez un champ</option>
-                <option *ngFor="let field of fieldNames" [value]="field">{{ field }}</option>
+                <option *ngFor="let field of fieldNames" [value]="field">{{ field | titlecase }}</option>
               </select>
               <i class="fas fa-chevron-down select-icon"></i>
             </div>
+            <small id="fieldSelectHelp" class="form-text">Choisissez un champ pour l'analyse ou le filtrage.</small>
           </div>
-        </div>
 
-        <!-- Conteneur du graphique -->
-        <div class="chart-container" *ngIf="showChart && displayMode === 'chart'">
+          <!-- Operator Selection -->
+          <div class="form-group" *ngIf="selectedField">
+            <label for="filterOperator" class="form-label">Opérateur :</label>
+            <div class="select-wrapper">
+              <select
+                  id="filterOperator"
+                  [(ngModel)]="filterOperator"
+                  name="filterOperator"
+                  (ngModelChange)="onOperatorChange()"
+                  class="form-select"
+                  aria-describedby="filterOperatorHelp"
+                  required
+                >
+                  <option *ngFor="let op of operatorOptions[getOperatorKey(inferFieldType(selectedField))]" [value]="op">
+                    {{ op | titlecase }}
+                  </option>
+                </select>
+              <i class="fas fa-chevron-down select-icon"></i>
+            </div>
+            <small id="filterOperatorHelp" class="form-text">Sélectionnez l'opérateur pour le filtre.</small>
+          </div>
+
+          <!-- Filter Value Input (Non-Boolean) -->
+          <div class="form-group" *ngIf="selectedField && inferFieldType(selectedField) !== 'boolean'">
+            <label for="filterValue" class="form-label">Valeur :</label>
+            <!-- Date Field: Date Picker -->
+            <input
+              *ngIf="inferFieldType(selectedField) === 'date' && dateInputMode === 'date'"
+              id="filterValue"
+              [(ngModel)]="filterValue"
+              name="filterValue"
+              (ngModelChange)="onFilterValueChange()"
+              type="date"
+              class="form-input"
+              placeholder="Sélectionnez une date (YYYY-MM-DD)"
+              aria-describedby="filterValueHelp"
+              required
+            />
+            <!-- Date Field: Year Input -->
+            <input
+              *ngIf="inferFieldType(selectedField) === 'date' && dateInputMode === 'year'"
+              id="filterValue"
+              [(ngModel)]="filterValue"
+              name="filterValue"
+              (ngModelChange)="onFilterValueChange()"
+              type="text"
+              pattern="^\d{4}$"
+              class="form-input"
+              placeholder="Entrez une année (YYYY)"
+              aria-describedby="filterValueHelp"
+              required
+            />
+            <!-- Non-Date Fields -->
+            <input
+              *ngIf="inferFieldType(selectedField) !== 'date'"
+              id="filterValue"
+              [(ngModel)]="filterValue"
+              name="filterValue"
+              (ngModelChange)="onFilterValueChange()"
+              [type]="inferFieldType(selectedField) === 'integer' ? 'number' : 'text'"
+              [pattern]="getPattern(selectedField)"
+              class="form-input"
+              [placeholder]="inferFieldType(selectedField) === 'integer' ? 'Entrez un nombre (ex: 42)' : 'Entrez une valeur (ex: john@example.com)'"
+              aria-describedby="filterValueHelp"
+              required
+            />
+            <!-- Date Input Mode Toggle -->
+            <div class="form-group" *ngIf="selectedField && inferFieldType(selectedField) === 'date'">
+              <label class="form-label">Type d'entrée :</label>
+              <label><input type="radio" [(ngModel)]="dateInputMode" name="dateInputMode" value="date" (ngModelChange)="filterValue = ''"> Date</label>
+              <label><input type="radio" [(ngModel)]="dateInputMode" name="dateInputMode" value="year" (ngModelChange)="filterValue = ''"> Année</label>
+            </div>
+            <small id="filterValueHelp" class="form-text">
+              {{ inferFieldType(selectedField) === 'date' ? (dateInputMode === 'date' ? 'Sélectionnez une date (YYYY-MM-DD, ex: 2025-01-01)' : 'Entrez une année (YYYY, ex: 2025)') : inferFieldType(selectedField) === 'integer' ? '(numérique, ex: 42)' : '(texte, ex: john@example.com)' }}
+            </small>
+          </div>
+
+          <!-- Boolean Filter Value -->
+          <div class="form-group" *ngIf="selectedField && inferFieldType(selectedField) === 'boolean'">
+            <label for="filterValue" class="form-label">Valeur :</label>
+            <select
+              id="filterValue"
+              [(ngModel)]="filterValue"
+              name="filterValue"
+              (ngModelChange)="onFilterValueChange()"
+              class="form-select"
+              aria-describedby="filterValueHelp"
+              required
+            >
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <small id="filterValueHelp" class="form-text">Sélectionnez une valeur booléenne (true ou false).</small>
+          </div>
+
+          <!-- Validation Messages -->
+          <small *ngIf="!selectedField && selectedCollection" class="form-text error">Veuillez sélectionner un champ</small>
+          <small *ngIf="!filterValue && selectedField" class="form-text error">Veuillez entrer une valeur</small>
+          <small *ngIf="!filterOperator && selectedField" class="form-text error">Veuillez sélectionner un opérateur</small>
+          <small *ngIf="isLoading" class="form-text">Chargement en cours...</small>
+
+          <!-- Apply Filter Button -->
+          <button
+            type="submit"
+            class="filter-button"
+            [disabled]="isLoading || !selectedField || !filterValue || !filterOperator"
+            aria-label="Appliquer le filtre"
+          >
+            Appliquer le filtre
+          </button>
+        </form>
+
+        <!-- Chart Container -->
+        <div class="chart-container" *ngIf="showChart && displayMode === 'chart'" role="region" aria-label="Graphique des données">
           <div #chart class="chart"></div>
         </div>
 
-        <!-- Conteneur du tableau -->
-        <div class="table-container" *ngIf="displayMode === 'table' && hasData()">
+        <!-- Table Container -->
+        <div class="table-container" *ngIf="displayMode === 'table' && hasData()" role="grid" aria-label="Tableau des données">
           <table class="data-table">
             <thead>
               <tr>
-                <th *ngFor="let column of visibleColumns">
-                  {{ column }}
-                  <i
-                    class="fas fa-times remove-column"
+                <th *ngFor="let column of visibleColumns" scope="col">
+                  {{ column | titlecase }}
+                  <button
+                    class="remove-column"
                     (click)="removeColumn(column)"
                     title="Supprimer la colonne"
-                  ></i>
+                    [attr.aria-label]="'Supprimer la colonne ' + column"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
                 </th>
               </tr>
             </thead>
@@ -99,13 +223,16 @@
               </tr>
             </tbody>
           </table>
+          <p class="total-count" *ngIf="totalCount !== null">Total: {{ totalCount }}</p>
         </div>
 
-        <!-- Message si aucune donnée -->
-        <div class="no-data" *ngIf="displayMode === 'table' && !hasData()">
+        <!-- No Data Message -->
+        <div class="no-data" *ngIf="displayMode === 'table' && !hasData()" role="alert" aria-live="polite">
           Aucune donnée à afficher dans le tableau.
         </div>
       </div>
     </div>
   </div>
 </div>
+
+

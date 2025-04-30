@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DatabaseService } from '../services/database.service';
+import { DatabaseService } from '../../services/database.service';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,8 +28,6 @@ import { DatabaseDialogComponent } from '../database-dialog/database-dialog.comp
 })
 export class DatabaseComponent implements OnInit {
   selectedDatabase: string = '';
-  selectedCollection: string = '';
-  data: any[] = [];
 
   constructor(
     private databaseService: DatabaseService,
@@ -37,7 +35,7 @@ export class DatabaseComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // No need to load databases; handled in DatabaseDialogComponent
+    // Initialisation si nécessaire
   }
 
   openDatabaseDialog() {
@@ -53,12 +51,4 @@ export class DatabaseComponent implements OnInit {
       }
     });
   }
-
-  /* loadCollectionData() {
-    if (this.selectedDatabase && this.selectedCollection) {
-      this.databaseService.getCollectionData(this.selectedDatabase, this.selectedCollection).subscribe(
-        res => this.data = res
-      );
-    }
-  } */
 }

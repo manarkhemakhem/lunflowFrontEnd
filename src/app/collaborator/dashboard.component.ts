@@ -3,15 +3,19 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import * as echarts from 'echarts';
 import { filter, forkJoin } from 'rxjs';
-import { DatabaseComponent } from "../database/database.component";
+import { DatabaseComponent } from "../header/database/database.component";
 import { Collaborator, CollaboratorService } from '../services/collaborator.service';
 import { DatabaseService } from '../services/database.service';
-import { HeaderComponent } from '../header/header.component';
+import {  SidenavComponent } from '../Sidenav/Sidenav.component';
+import { ExportService } from '../services/export.service';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatabaseComponent, HeaderComponent],
+  imports: [CommonModule, RouterModule, DatabaseComponent, SidenavComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -39,12 +43,13 @@ export class DashboardComponent implements OnInit {
   totalNotDeleted: number = 0;
   totalOnline: number = 0;
   totalNotOnline: number = 0;
-
+  isExporting = false;
   constructor(
     private collaboratorService: CollaboratorService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private exportService: ExportService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +66,96 @@ export class DashboardComponent implements OnInit {
   ngAfterViewInit(): void {
     this.checkAndUpdateCharts();
   }
+  @ViewChild('dashboardToCapture', { static: false }) dashboardRef!: ElementRef;
+  exportToPDF(): void {
+    this.isExporting = true;
 
+    // Récupérer chaque graphique ECharts
+    const doughnutChart = echarts.getInstanceByDom(this.DoughnutChartElement.nativeElement);
+    const histogramChart = echarts.getInstanceByDom(this.chartElement.nativeElement);
+    const deletedChart = echarts.getInstanceByDom(this.DeletedStatusChartElement.nativeElement);
+    const onlineChart = echarts.getInstanceByDom(this.onlineChart.nativeElement);
+
+    // Exporter chaque graphique en image PNG
+    const doughnutBase64 = doughnutChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
+    const histogramBase64 = histogramChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
+    const deletedBase64 = deletedChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
+    const onlineBase64 = onlineChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
+
+    // Créer une nouvelle instance jsPDF
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+
+    // Titre du PDF
+    doc.text('Rapport du Dashboard', 20, 20);
+
+    // Statistiques
+    doc.setFontSize(12);
+    doc.text(`Total Collaborateurs : ${this.totalCollaborators}`, 20, 30);
+    doc.text(`Total Non Supprimés : ${this.totalNotDeleted}`, 20, 40);
+    doc.text(`Total Non Administrateurs : ${this.totalNotAdmins}`, 20, 50);
+    doc.text(`Total En Ligne : ${this.totalOnline}`, 20, 60);
+
+    // Ajouter les graphiques
+    doc.text('Graphiques :', 20, 70);
+
+    // Ajouter chaque graphique au PDF sous forme d'image (pas base64)
+    // Ajouter le graphique doughnut
+    if (doughnutBase64) {
+      const doughnutImage = new Image();
+      doughnutImage.src = doughnutBase64;
+      doughnutImage.onload = () => {
+        doc.text('Répartition des Collaborateurs', 20, 80);
+        doc.addImage(doughnutImage, 'PNG', 20, 90, 180, 100);  // Ajouter l'image du graphique doughnut
+
+        // Ajouter le graphique histogramme
+        if (histogramBase64) {
+          const histogramImage = new Image();
+          histogramImage.src = histogramBase64;
+          histogramImage.onload = () => {
+            doc.text('Répartition par Histogramme', 20, 200);
+            doc.addImage(histogramImage, 'PNG', 20, 210, 180, 100);  // Ajouter l'image du graphique histogramme
+
+            // Ajouter le graphique supprimé
+            if (deletedBase64) {
+              const deletedImage = new Image();
+              deletedImage.src = deletedBase64;
+              deletedImage.onload = () => {
+                doc.text('Statut Supprimé', 20, 320);
+                doc.addImage(deletedImage, 'PNG', 20, 330, 180, 100);  // Ajouter l'image du graphique supprimé
+
+                // Ajouter le graphique en ligne
+                if (onlineBase64) {
+                  const onlineImage = new Image();
+                  onlineImage.src = onlineBase64;
+                  onlineImage.onload = () => {
+                    doc.text('Statut En Ligne', 20, 440);
+                    doc.addImage(onlineImage, 'PNG', 20, 450, 180, 100);  // Ajouter l'image du graphique en ligne
+
+                    // Finaliser l'exportation du PDF
+                    doc.save('dashboard.pdf');
+                    this.isExporting = false;
+                  };
+                } else {
+                  console.error('Image du graphique en ligne manquante');
+                  this.isExporting = false;
+                }
+              };
+            } else {
+              console.error('Image du graphique supprimé manquante');
+              this.isExporting = false;
+            }
+          };
+        } else {
+          console.error('Image du graphique histogramme manquante');
+          this.isExporting = false;
+        }
+      };
+    } else {
+      console.error('Image du graphique doughnut manquante');
+      this.isExporting = false;
+    }
+  }
   private loadDashboardData(databaseName: string): void {
     forkJoin({
       collaborators: this.collaboratorService.getAllCollaborators(),
@@ -96,6 +190,10 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+
+
+
 
   private loadChart(): void {
     if (typeof window === 'undefined' || !this.chartElement?.nativeElement) return;
@@ -137,7 +235,7 @@ export class DashboardComponent implements OnInit {
           type: 'bar',
           data: values,
           barWidth: '50%',
-          color: '#3a90d1',
+          color: '#93C5FD', // Bleu moyen
           label: {
             show: true,
             position: 'insideTop',
@@ -181,8 +279,8 @@ export class DashboardComponent implements OnInit {
       series: [{
         type: 'bar',
         data: [
-          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#A5D4F5' } },
-          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#3a90d1' } }
+          { value: this.totalDeleted, name: 'Supprimés', itemStyle: { color: '#ecca1f' } }, // Jaune moutarde
+          { value: this.totalNotDeleted, name: 'Non Supprimés', itemStyle: { color: '#93C5FD' } } // Bleu clair
         ],
         barWidth: '50%',
         label: {
@@ -224,8 +322,8 @@ export class DashboardComponent implements OnInit {
           radius: ['30%', '60%'],
           center: ['50%', '50%'],
           data: [
-            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#cadeee' } },
-            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#A5D4F5' } }
+            { value: this.totalOnline, name: 'En ligne', itemStyle: { color: '#f13529' } }, // Rose pâle
+            { value: this.totalNotOnline, name: 'Non En ligne', itemStyle: { color: '#3B82F6' } } // Bleu clair
           ],
           label: {
             show: true,
@@ -243,7 +341,6 @@ export class DashboardComponent implements OnInit {
 
     chart.setOption(option);
   }
-
   private updateDoughnutChart(): void {
     if (typeof window === 'undefined' || !this.DoughnutChartElement?.nativeElement) return;
 
@@ -286,8 +383,8 @@ export class DashboardComponent implements OnInit {
           }
         },
         data: [
-          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#3a90d1' } },
-          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#cadeee' } }
+          { value: this.totalAdmins, name: 'Admins', itemStyle: { color: '#f13529' } }, // rouge
+          { value: this.totalNotAdmins, name: 'Non-Admins', itemStyle: { color: '#3B82F6' } } // Bleu moyen
         ],
       }]
     };

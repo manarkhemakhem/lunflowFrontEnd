@@ -1,10 +1,20 @@
 <div class="main-container">
   <div class="header">
     <app-database></app-database>
+    <!-- Bouton d'exportation -->
+    <div class="export-section">
+      <button
+        (click)="exportToPDF()"
+        [disabled]="isExporting || totalCollaborators === 0"
+        class="export-btn">
+        {{ isExporting ? 'Exportation...' : 'Exporter en PDF' }}
+      </button>
+    </div>
   </div>
   <div class="sidebar" [ngClass]="{'sidebar-open': isSidebarOpen}">
-    <app-header (sidebarToggled)="onSidebarToggled($event)"></app-header>
+    <app-Sidenav (sidebarToggled)="onSidebarToggled($event)"></app-Sidenav>
   </div>
+  <div #dashboardToCapture>
   <div class="main-content">
     <div class="fullscreen-dashboard">
       <!-- Colonne 1 : Statistiques -->
@@ -46,4 +56,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>

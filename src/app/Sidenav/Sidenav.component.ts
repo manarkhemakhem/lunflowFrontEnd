@@ -1,18 +1,17 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DashboardComponent } from "../collaborator/dashboard.component";
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-Sidenav',
   standalone: true,
   imports: [CommonModule,RouterModule],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  templateUrl: './Sidenav.component.html',
+  styleUrl: './Sidenav.component.css'
 })
-export class HeaderComponent {
+export class SidenavComponent {
   isSidebarOpen = false;
-
   @Output() sidebarToggled = new EventEmitter<boolean>();
 
   toggleSidebar() {
