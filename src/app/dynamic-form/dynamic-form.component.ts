@@ -575,4 +575,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private previousField: string | null = null;
+
+
+
+  showFilterModal = false;
+
+
 }

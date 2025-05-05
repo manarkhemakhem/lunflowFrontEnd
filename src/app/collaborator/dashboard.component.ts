@@ -44,6 +44,12 @@ export class DashboardComponent implements OnInit {
   totalOnline: number = 0;
   totalNotOnline: number = 0;
   isExporting = false;
+
+
+  title: string = 'Titre du PDF';
+  content: string = 'Voici le contenu du PDF.';
+  filename: string = 'exported.pdf';
+  images: File[] = [];
   constructor(
     private collaboratorService: CollaboratorService,
     private cdr: ChangeDetectorRef,
@@ -66,96 +72,69 @@ export class DashboardComponent implements OnInit {
   ngAfterViewInit(): void {
     this.checkAndUpdateCharts();
   }
-  @ViewChild('dashboardToCapture', { static: false }) dashboardRef!: ElementRef;
-  exportToPDF(): void {
+  // Fonction pour sélectionner les fichiers
+  onImageSelect(event: any) {
+    this.images = Array.from(event.target.files);
+    console.log('Selected images:', this.images);
+  }
+
+  async exportToPDF() {
     this.isExporting = true;
 
-    // Récupérer chaque graphique ECharts
-    const doughnutChart = echarts.getInstanceByDom(this.DoughnutChartElement.nativeElement);
-    const histogramChart = echarts.getInstanceByDom(this.chartElement.nativeElement);
-    const deletedChart = echarts.getInstanceByDom(this.DeletedStatusChartElement.nativeElement);
-    const onlineChart = echarts.getInstanceByDom(this.onlineChart.nativeElement);
+    // Dynamically generate content
+    this.content = `
+      Statistiques du Tableau de Bord:
+      - Total Collaborateurs: ${this.totalCollaborators}
+      - Admins: ${this.totalAdmins}
+      - Non-Admins: ${this.totalNotAdmins}
+      - En Service: ${this.totalNotDeleted}
+      - Supprimés: ${this.totalDeleted}
+      - En Ligne: ${this.totalOnline}
+      - Non En Ligne: ${this.totalNotOnline}
+    `;
 
-    // Exporter chaque graphique en image PNG
-    const doughnutBase64 = doughnutChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
-    const histogramBase64 = histogramChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
-    const deletedBase64 = deletedChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
-    const onlineBase64 = onlineChart?.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' }) || '';
+    // Capture charts as images
+    const chartElements = [
+      { element: this.DoughnutChartElement, name: 'doughnut_chart.png' },
+      { element: this.chartElement, name: 'histogram_chart.png' },
+      { element: this.DeletedStatusChartElement, name: 'deleted_status_chart.png' },
+      { element: this.onlineChart, name: 'online_chart.png' }
+    ];
 
-    // Créer une nouvelle instance jsPDF
-    const doc = new jsPDF();
-    doc.setFontSize(16);
+    this.images = []; // Clear previous images
 
-    // Titre du PDF
-    doc.text('Rapport du Dashboard', 20, 20);
-
-    // Statistiques
-    doc.setFontSize(12);
-    doc.text(`Total Collaborateurs : ${this.totalCollaborators}`, 20, 30);
-    doc.text(`Total Non Supprimés : ${this.totalNotDeleted}`, 20, 40);
-    doc.text(`Total Non Administrateurs : ${this.totalNotAdmins}`, 20, 50);
-    doc.text(`Total En Ligne : ${this.totalOnline}`, 20, 60);
-
-    // Ajouter les graphiques
-    doc.text('Graphiques :', 20, 70);
-
-    // Ajouter chaque graphique au PDF sous forme d'image (pas base64)
-    // Ajouter le graphique doughnut
-    if (doughnutBase64) {
-      const doughnutImage = new Image();
-      doughnutImage.src = doughnutBase64;
-      doughnutImage.onload = () => {
-        doc.text('Répartition des Collaborateurs', 20, 80);
-        doc.addImage(doughnutImage, 'PNG', 20, 90, 180, 100);  // Ajouter l'image du graphique doughnut
-
-        // Ajouter le graphique histogramme
-        if (histogramBase64) {
-          const histogramImage = new Image();
-          histogramImage.src = histogramBase64;
-          histogramImage.onload = () => {
-            doc.text('Répartition par Histogramme', 20, 200);
-            doc.addImage(histogramImage, 'PNG', 20, 210, 180, 100);  // Ajouter l'image du graphique histogramme
-
-            // Ajouter le graphique supprimé
-            if (deletedBase64) {
-              const deletedImage = new Image();
-              deletedImage.src = deletedBase64;
-              deletedImage.onload = () => {
-                doc.text('Statut Supprimé', 20, 320);
-                doc.addImage(deletedImage, 'PNG', 20, 330, 180, 100);  // Ajouter l'image du graphique supprimé
-
-                // Ajouter le graphique en ligne
-                if (onlineBase64) {
-                  const onlineImage = new Image();
-                  onlineImage.src = onlineBase64;
-                  onlineImage.onload = () => {
-                    doc.text('Statut En Ligne', 20, 440);
-                    doc.addImage(onlineImage, 'PNG', 20, 450, 180, 100);  // Ajouter l'image du graphique en ligne
-
-                    // Finaliser l'exportation du PDF
-                    doc.save('dashboard.pdf');
-                    this.isExporting = false;
-                  };
-                } else {
-                  console.error('Image du graphique en ligne manquante');
-                  this.isExporting = false;
-                }
-              };
-            } else {
-              console.error('Image du graphique supprimé manquante');
-              this.isExporting = false;
-            }
-          };
-        } else {
-          console.error('Image du graphique histogramme manquante');
-          this.isExporting = false;
-        }
-      };
-    } else {
-      console.error('Image du graphique doughnut manquante');
-      this.isExporting = false;
+    for (const chart of chartElements) {
+      if (chart.element?.nativeElement) {
+        const canvas = await html2canvas(chart.element.nativeElement, {
+          scale: 2, // Increase resolution
+          useCORS: true // Handle cross-origin issues if any
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const blob = await fetch(imgData).then(res => res.blob());
+        this.images.push(new File([blob], chart.name, { type: 'image/png' }));
+      }
     }
+
+    // Call the export service
+    this.exportService.exportToPDF(this.title, this.content, this.filename, this.images).subscribe({
+      next: (response: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(response);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = this.filename;
+        link.click();
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'exportation du PDF', err);
+        alert('Une erreur est survenue lors de l\'exportation du PDF. Veuillez réessayer.');
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
+
   private loadDashboardData(databaseName: string): void {
     forkJoin({
       collaborators: this.collaboratorService.getAllCollaborators(),

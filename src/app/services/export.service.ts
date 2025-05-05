@@ -1,32 +1,36 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ExportService {
-  private apiUrl = 'http://localhost:8080/export/pdf'; // Corrected URL
 
-  constructor(private http: HttpClient) {}
+  private baseUrl: string = 'http://localhost:8080/export';  // L'URL de base du backend
 
-  exportToPdf(payload: { content: string; title: string; image?: Blob }, filename: string): Observable<Blob> {
-    const formData = new FormData();
-    formData.append('content', payload.content);
-    formData.append('title', payload.title);
+  constructor(private http: HttpClient) { }
+
+  exportToPDF(title: string, content: string, filename: string, images: File[]): Observable<Blob> {
+    const formData: FormData = new FormData();
+    formData.append('title', title);
+    formData.append('content', content);
     formData.append('filename', filename);
-    if (payload.image) {
-      formData.append('image', payload.image, 'chart.png');
+
+    // Always append the 'images' part, even if empty
+    if (images.length > 0) {
+      images.forEach(image => {
+        formData.append('images', image, image.name);
+      });
+    } else {
+      // Append an empty file or placeholder to satisfy the backend
+      formData.append('images', new Blob(), 'empty');
     }
 
-    return this.http
-      .post(this.apiUrl, formData, { responseType: 'blob' })
-      .pipe(
-        catchError((error) => {
-          console.error('Erreur HTTP lors de l’exportation PDF:', error);
-          return throwError(() => new Error('Erreur lors de la génération du PDF'));
-        })
-      );
-  }
-}
+    const headers = new HttpHeaders();
+
+    return this.http.post(`${this.baseUrl}/export`, formData, {
+      headers: headers,
+      responseType: 'blob'
+    });
+  }}

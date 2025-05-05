@@ -7,7 +7,7 @@ import { SidenavComponent } from "./Sidenav/Sidenav.component";
   selector: 'app-root',
   standalone: true,  // ✅ Important !
   imports: [RouterOutlet, DatabaseComponent, SidenavComponent], // ✅ Permet d'afficher les routes
-  template: `<app-database></app-database>
+  template: `<!-- <app-database></app-database> -->
 <!-- <app-Sidenav ></app-Sidenav>
  -->  <router-outlet></router-outlet>`, // ✅ Pour afficher les composants selon les routes
 })
