@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 50px;
+  height: 45px;
   background-color: #3a90d1;
   color: white;
   display: flex;
@@ -13,7 +13,9 @@
   padding: 0 20px;
   z-index: 1000;
 }
-
+h3 {
+  font-size: 25px;
+}
 .navbar-left,
 .navbar-right {
   display: flex;
@@ -24,12 +26,12 @@
 button,
 .db-button,
 .btn {
-  padding: 10px 16px;
+  padding: 10px 15px;
   background-color: #3a90d1;
   color: white;
   border: none;
   border-radius: 6px;
-  font-weight: 500;
+  font-weight: 450;
   cursor: pointer;
   transition: background-color 0.25s ease;
 }

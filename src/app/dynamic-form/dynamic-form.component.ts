@@ -16,13 +16,14 @@ import { DatabaseComponent } from "../header/database/database.component";
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   collections: string[] = ['group', 'user', 'collaborator'];
-  selectedCollection = '';
+  selectedCollection: string = '';
   collectionData: any[] = [];
   fieldNames: string[] = [];
-  selectedField = '';
-  filterOperator = 'equals';
-  filterValue = '';
-  dateInputMode: 'date' | 'year' = 'date'; // Fixed initialization
+  selectedField: string = '';
+  filterOperator: string = 'equals';
+  filterValue: string = '';
+  useFilter: boolean = false; // New checkbox property
+  dateInputMode: 'date' | 'year' = 'date';
   groupedCountResult: { [key: string]: number } = {};
   totalCount: number | null = null;
   errorMessage: string | null = null;
@@ -31,9 +32,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   showChart: boolean = false;
   displayMode: 'chart' | 'table' = 'chart';
   visibleColumns: string[] = [];
+  previousField: string | null = null; // Moved to class level
 
-  // Updated operatorOptions with both date and date_year
-  public operatorOptions: { [key: string]: string[] } = {
+  operatorOptions: { [key: string]: string[] } = {
     string: ['equals', 'notequals', 'contains', 'notcontains', 'startswith', 'endswith'],
     boolean: ['equals', 'notequals'],
     integer: ['equals', 'notequals'],
@@ -98,12 +99,12 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onCollectionSelect(): void {
     console.log('onCollectionSelect: Selected collection:', this.selectedCollection);
-    console.log('onCollectionSelect: State:', { selectedField: this.selectedField, filterValue: this.filterValue, filterOperator: this.filterOperator, isLoading: this.isLoading });
     if (!this.selectedCollection || !this.databaseName) {
       this.fieldNames = [];
       this.selectedField = '';
       this.filterOperator = 'equals';
       this.filterValue = '';
+      this.useFilter = false;
       this.groupedCountResult = {};
       this.totalCount = null;
       this.visibleColumns = [];
@@ -116,64 +117,32 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isLoading = true;
     this.cdr.detectChanges();
-    this.databaseService.getCollectionData(this.databaseName, this.selectedCollection).subscribe({
-      next: (data: any[]) => {
-        console.log('onCollectionSelect: getCollectionData response:', data);
-        this.collectionData = data;
-        this.loadFieldNames();
+    this.databaseService.getFields(this.databaseName, this.selectedCollection).subscribe({
+      next: (fields: string[]) => {
+        console.log('onCollectionSelect: getFields response:', fields);
+        this.fieldNames = fields;
         this.errorMessage = null;
         this.isLoading = false;
         this.cdr.detectChanges();
-        console.log('onCollectionSelect: fieldNames:', this.fieldNames);
       },
       error: (error: any) => {
-        console.error('onCollectionSelect: getCollectionData error:', error);
+        console.error('onCollectionSelect: getFields error:', error);
         this.errorMessage = error.status === 404
           ? `Base de données "${this.databaseName}" ou collection "${this.selectedCollection}" non trouvée`
-          : `Erreur lors du chargement des données : ${error.message || error}`;
-        this.collectionData = [];
+          : `Erreur lors du chargement des champs : ${error.message || error}`;
         this.fieldNames = [];
-        this.selectedField = '';
-        this.filterValue = '';
         this.isLoading = false;
         this.cdr.detectChanges();
       },
     });
   }
 
-  private loadFieldNames(): void {
-    if (this.selectedCollection) {
-      this.databaseService.getFieldNames(this.selectedCollection).subscribe({
-        next: (fields: string[]) => {
-          console.log('loadFieldNames: Field names for', this.selectedCollection, ':', fields);
-          this.fieldNames = fields;
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-        error: (error: any) => {
-          console.error('loadFieldNames: Error fetching fields for', this.selectedCollection, ':', error);
-          this.fieldNames = this.extractFieldNames(this.collectionData);
-          console.log('loadFieldNames: Fallback to extracted field names:', this.fieldNames);
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-      });
-    } else {
-      this.fieldNames = this.extractFieldNames(this.collectionData);
-      console.log('loadFieldNames: Extracted field names:', this.fieldNames);
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
   onFieldChange(): void {
-    console.log('onFieldChange: selectedField:', this.selectedField, 'filterValue:', this.filterValue, 'filterOperator:', this.filterOperator, 'isLoading:', this.isLoading);
+    console.log('onFieldChange: Selected field:', this.selectedField);
     const previousFieldType = this.inferFieldType(this.previousField || '');
     const currentFieldType = this.inferFieldType(this.selectedField);
-    console.log('onFieldChange: previousFieldType:', previousFieldType, 'currentFieldType:', currentFieldType);
     if (this.selectedField && !this.operatorOptions[this.getOperatorKey(currentFieldType)]?.includes(this.filterOperator)) {
       this.filterOperator = this.operatorOptions[this.getOperatorKey(currentFieldType)][0] || 'equals';
-      console.log('onFieldChange: Reset filterOperator to:', this.filterOperator);
     }
     this.filterValue = '';
     this.dateInputMode = 'date';
@@ -181,38 +150,14 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
 
     if (this.selectedField && this.selectedCollection && this.databaseName) {
-      this.isLoading = true;
-      this.cdr.detectChanges();
-      this.databaseService.getCollectionData(this.databaseName, this.selectedCollection).subscribe({
-        next: (data: any[]) => {
-          console.log('onFieldChange: getCollectionData response:', data);
-          this.collectionData = data;
-          this.groupedCountResult = this.countByField(data, this.selectedField);
-          this.totalCount = Object.values(this.groupedCountResult).reduce((sum, count) => sum + count, 0);
-          this.visibleColumns = Object.keys(this.groupedCountResult);
-          this.errorMessage = null;
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          console.log('onFieldChange: State:', { selectedField: this.selectedField, filterValue: this.filterValue, filterOperator: this.filterOperator, isLoading: this.isLoading });
-        },
-        error: (error: any) => {
-          console.error('onFieldChange: getCollectionData error:', error);
-          this.errorMessage = error.status === 404
-            ? `Base de données "${this.databaseName}" non trouvée`
-            : `Erreur lors du chargement des données : ${error.message || error}`;
-          this.groupedCountResult = {};
-          this.totalCount = null;
-          this.visibleColumns = [];
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-      });
+      this.applyFilter(); // Trigger data fetch based on useFilter
     } else {
       this.groupedCountResult = {};
       this.totalCount = null;
       this.visibleColumns = [];
       this.errorMessage = !this.databaseName ? 'Veuillez sélectionner une base de données' : null;
       this.isLoading = false;
+      this.clearChart();
       this.cdr.detectChanges();
     }
   }
@@ -233,131 +178,162 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     if (fieldType === 'date') {
       this.filterOperator = this.operatorOptions[this.getOperatorKey(fieldType)][0] || 'equals';
       this.filterValue = '';
-      console.log('onDateInputModeChange: Reset filterOperator to:', this.filterOperator);
     }
     this.cdr.detectChanges();
   }
 
+  onUseFilterChange(): void {
+    console.log('onUseFilterChange: useFilter:', this.useFilter);
+    if (!this.useFilter) {
+      this.filterValue = '';
+      this.filterOperator = 'equals';
+    }
+    this.cdr.detectChanges();
+    if (this.selectedField && this.selectedCollection && this.databaseName) {
+      this.applyFilter();
+    }
+  }
+
   applyFilter(): void {
-    console.log('applyFilter: Applying filter with:', {
+    console.log('applyFilter: Applying with:', {
       collection: this.selectedCollection,
       field: this.selectedField,
       operator: this.filterOperator,
       value: this.filterValue,
-      isLoading: this.isLoading,
+      useFilter: this.useFilter,
     });
-    if (!this.selectedField || !this.selectedCollection || !this.databaseName || !this.filterValue) {
-      this.errorMessage = 'Veuillez sélectionner une collection, un champ, un opérateur et entrer une valeur';
+
+    if (!this.selectedCollection || !this.databaseName || !this.selectedField) {
+      this.errorMessage = 'Veuillez sélectionner une base de données, une collection et un champ';
       this.clearChart();
       this.cdr.detectChanges();
       return;
     }
 
-    const fieldType = this.inferFieldType(this.selectedField);
-    const operatorKey = this.getOperatorKey(fieldType);
-    if (!this.operatorOptions[operatorKey]?.includes(this.filterOperator)) {
-      this.errorMessage = `Opérateur "${this.filterOperator}" non supporté pour le type ${fieldType}`;
-      this.clearChart();
-      this.cdr.detectChanges();
-      return;
-    }
+    if (this.useFilter) {
+      if (!this.filterValue) {
+        this.errorMessage = 'Veuillez entrer une valeur pour le filtre';
+        this.clearChart();
+        this.cdr.detectChanges();
+        return;
+      }
 
-    if (fieldType === 'integer') {
-      const numValue = Number(this.filterValue);
-      if (isNaN(numValue)) {
-        this.errorMessage = 'La valeur doit être un nombre valide';
+      const fieldType = this.inferFieldType(this.selectedField);
+      const operatorKey = this.getOperatorKey(fieldType);
+      if (!this.operatorOptions[operatorKey]?.includes(this.filterOperator)) {
+        this.errorMessage = `Opérateur "${this.filterOperator}" non supporté pour le type ${fieldType}`;
         this.clearChart();
         this.cdr.detectChanges();
         return;
       }
-      this.filterValue = numValue.toString();
-    }
 
-    if (fieldType === 'boolean') {
-      if (!['true', 'false'].includes(this.filterValue.toLowerCase())) {
-        this.errorMessage = 'La valeur doit être "true" ou "false"';
-        this.clearChart();
-        this.cdr.detectChanges();
-        return;
+      if (fieldType === 'integer') {
+        const numValue = Number(this.filterValue);
+        if (isNaN(numValue)) {
+          this.errorMessage = 'La valeur doit être un nombre valide';
+          this.clearChart();
+          this.cdr.detectChanges();
+          return;
+        }
+        this.filterValue = numValue.toString();
       }
-      this.filterValue = this.filterValue.toLowerCase();
-    }
 
-    if (fieldType === 'date') {
-      const isYear = /^\d{4}$/.test(this.filterValue);
-      const isDate = /^\d{4}-\d{2}-\d{2}$/.test(this.filterValue);
-      const isISODate = this.filterValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?$/);
-      if (!isYear && !isDate && !isISODate) {
-        this.errorMessage = 'La valeur doit être une année (YYYY, ex: 2025), une date (YYYY-MM-DD, ex: 2025-01-01), ou une date ISO (YYYY-MM-DDTHH:mm:ss, ex: 2025-01-01T00:00:00)';
-        this.clearChart();
-        this.cdr.detectChanges();
-        return;
+      if (fieldType === 'boolean') {
+        if (!['true', 'false'].includes(this.filterValue.toLowerCase())) {
+          this.errorMessage = 'La valeur doit être "true" ou "false"';
+          this.clearChart();
+          this.cdr.detectChanges();
+          return;
+        }
+        this.filterValue = this.filterValue.toLowerCase();
       }
-      if (isYear && this.dateInputMode === 'date') {
-        this.errorMessage = 'Une année (YYYY) n\'est pas autorisée en mode date. Utilisez une date complète (YYYY-MM-DD) ou passez en mode année.';
-        this.clearChart();
-        this.cdr.detectChanges();
-        return;
-      }
-      if ((isDate || isISODate) && this.dateInputMode === 'year') {
-        this.errorMessage = 'Une date complète (YYYY-MM-DD ou ISO) n\'est pas autorisée en mode année. Utilisez une année (YYYY) ou passez en mode date.';
-        this.clearChart();
-        this.cdr.detectChanges();
-        return;
-      }
-      if (isDate) {
-        this.filterValue = `${this.filterValue}T00:00:00`; // Convert YYYY-MM-DD to ISO
+
+      if (fieldType === 'date') {
+        const isYear = /^\d{4}$/.test(this.filterValue);
+        const isDate = /^\d{4}-\d{2}-\d{2}$/.test(this.filterValue);
+        const isISODate = this.filterValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\\d{2})?$/);
+        if (!isYear && !isDate && !isISODate) {
+          this.errorMessage = 'La valeur doit être une année (YYYY), une date (YYYY-MM-DD), ou une date ISO';
+          this.clearChart();
+          this.cdr.detectChanges();
+          return;
+        }
+        if (isYear && this.dateInputMode === 'date') {
+          this.errorMessage = 'Année non autorisée en mode date. Utilisez YYYY-MM-DD ou passez en mode année.';
+          this.clearChart();
+          this.cdr.detectChanges();
+          return;
+        }
+        if ((isDate || isISODate) && this.dateInputMode === 'year') {
+          this.errorMessage = 'Date complète non autorisée en mode année. Utilisez YYYY ou passez en mode date.';
+          this.clearChart();
+          this.cdr.detectChanges();
+          return;
+        }
+        if (isDate) {
+          this.filterValue = `${this.filterValue}T00:00:00`;
+        }
       }
     }
 
     this.isLoading = true;
     this.cdr.detectChanges();
-    this.databaseService
-      .filterByField(this.databaseName, this.selectedCollection, this.selectedField, this.filterOperator, this.filterValue)
-      .subscribe({
-        next: (data: any[]) => {
-          console.log('applyFilter: filterByField response:', data);
-          this.collectionData = data;
-          this.groupedCountResult = this.countByField(data, this.selectedField);
-          this.totalCount = Object.values(this.groupedCountResult).reduce((sum, count) => sum + count, 0);
-          this.visibleColumns = Object.keys(this.groupedCountResult);
-          this.errorMessage = null;
-          this.isLoading = false;
-          if (this.displayMode === 'chart') {
-            this.updateChart();
-          }
-          this.cdr.detectChanges();
-        },
-        error: (error: any) => {
-          console.error('applyFilter: filterByField error:', error);
-          this.errorMessage = error.status === 404
-            ? `Base de données "${this.databaseName}" non trouvée`
-            : `Erreur lors du filtrage : ${error.message || error}`;
-          this.collectionData = [];
-          this.groupedCountResult = {};
-          this.totalCount = null;
-          this.visibleColumns = [];
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-      });
+
+    const apiCall = this.useFilter
+      ? this.databaseService.filterByField(
+          this.databaseName,
+          this.selectedCollection,
+          this.selectedField,
+          this.filterOperator,
+          this.filterValue
+        )
+      : this.databaseService.getCollectionData(this.databaseName, this.selectedCollection);
+
+    apiCall.subscribe({
+      next: (data: any[]) => {
+        console.log('applyFilter: API response:', data);
+        this.collectionData = data;
+        this.groupedCountResult = this.countByField(data, this.selectedField);
+        this.totalCount = Object.values(this.groupedCountResult).reduce((sum, count) => sum + count, 0);
+        this.visibleColumns = Object.keys(this.groupedCountResult);
+        this.errorMessage = null;
+        this.isLoading = false;
+        if (this.displayMode === 'chart') {
+          this.updateChart();
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('applyFilter: API error:', error);
+        this.errorMessage = error.status === 404
+          ? `Base de données "${this.databaseName}" ou collection "${this.selectedCollection}" non trouvée`
+          : `Erreur: ${error.message || error}`;
+        this.collectionData = [];
+        this.groupedCountResult = {};
+        this.totalCount = null;
+        this.visibleColumns = [];
+        this.isLoading = false;
+        this.clearChart();
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  public inferFieldType(field: string): string {
+  inferFieldType(field: string): string {
     if (!this.collectionData.length || !field) return 'string';
     const value = this.collectionData.find(item => item[field] !== null && item[field] !== undefined)?.[field];
     if (value === undefined) return 'string';
     if (typeof value === 'number') return 'integer';
     if (typeof value === 'boolean') return 'boolean';
-    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?$/)) return 'date';
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\\d{2})?$/)) return 'date';
     return 'string';
   }
 
-  public getOperatorKey(fieldType: string): string {
+  getOperatorKey(fieldType: string): string {
     return fieldType === 'date' && this.dateInputMode === 'year' ? 'date_year' : fieldType;
   }
 
-  public getPattern(field: string): string {
+  getPattern(field: string): string {
     const fieldType = this.inferFieldType(field);
     if (fieldType === 'date') {
       return this.dateInputMode === 'year' ? '^\\d{4}$' : '^\\d{4}-\\d{2}-\\d{2}$|^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?(Z|[+-]\\d{2}:\\d{2})?$';
@@ -365,7 +341,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     return '';
   }
 
-  private extractFieldNames(data: any[]): string[] {
+  extractFieldNames(data: any[]): string[] {
     const fieldNames = new Set<string>();
     if (data && data.length > 0) {
       data.forEach((item) => {
@@ -380,7 +356,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     return Array.from(fieldNames);
   }
 
-  private countByField(data: any[], field: string): { [key: string]: number } {
+  countByField(data: any[], field: string): { [key: string]: number } {
     const result: { [key: string]: number } = {};
     data.forEach((item) => {
       let value = item[field];
@@ -419,7 +395,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     return hasData;
   }
 
-  private updateChart(): void {
+  updateChart(): void {
     if (!isPlatformBrowser(this.platformId)) {
       console.log('updateChart: Skipped (server-side)');
       return;
@@ -451,7 +427,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private renderChart(): void {
+  renderChart(): void {
     if (!this.chart) {
       console.error('renderChart: No chart instance');
       return;
@@ -551,7 +527,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private clearChart(): void {
+  clearChart(): void {
     console.log('clearChart: Clearing chart');
     this.showChart = false;
     if (isPlatformBrowser(this.platformId) && this.chart) {
@@ -560,12 +536,14 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  private clearForm(): void {
+  clearForm(): void {
     console.log('clearForm: Clearing form');
+    this.selectedCollection = '';
     this.fieldNames = [];
     this.selectedField = '';
     this.filterOperator = 'equals';
     this.filterValue = '';
+    this.useFilter = false;
     this.dateInputMode = 'date';
     this.groupedCountResult = {};
     this.totalCount = null;
@@ -573,12 +551,4 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearChart();
     this.cdr.detectChanges();
   }
-
-  private previousField: string | null = null;
-
-
-
-  showFilterModal = false;
-
-
 }

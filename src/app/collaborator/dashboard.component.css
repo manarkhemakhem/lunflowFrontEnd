@@ -9,7 +9,7 @@
 /* Header */
 .header {
   width: 100%;
-  height: 60px;
+  height: 45px;
   position: fixed;
   top: 0;
   left: 0;
@@ -184,7 +184,7 @@
   }
 }
 .export-section {
-  margin: 20px;
+  margin: 35px;
   text-align: right;
 }
 

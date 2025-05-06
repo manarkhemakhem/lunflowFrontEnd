@@ -43,23 +43,67 @@ export class DatabaseService {
     return this.http.get<any[]>(`http://localhost:8080/api/database/${databaseName}/${collectionName}`);
   }
 
-  // Get field names for a specified collection
   getFieldNames(collectionName: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/fields/${collectionName}`);
   }
-// Filter data by field, operator, and value
-filterByField(
-  databaseName: string,
-  collection: string,
-  field: string,
-  operator: string,
-  value: string
-): Observable<any[]> {
-  let params = new HttpParams()
-    .set('collection', collection)
-    .set('field', field)
-    .set('operator', operator)
-    .set('value', value);
-  return this.http.get<any[]>(`${this.apiUrl}/${databaseName}/filter`, { params });
-}
+
+  filterByField(
+    databaseName: string,
+    collection: string,
+    field: string,
+    operator: string,
+    value: string
+  ): Observable<any[]> {
+    let params = new HttpParams()
+      .set('collection', collection)
+      .set('field', field)
+      .set('operator', operator)
+      .set('value', value);
+    return this.http.get<any[]>(`${this.apiUrl}/${databaseName}/filter`, { params });
+  }
+
+  getFields(databaseName: string, collection: string): Observable<string[]> {
+    const url = `${this.apiUrl}/fields?databaseName=${encodeURIComponent(databaseName)}&collection=${encodeURIComponent(collection)}`;
+    console.log('getFields: Requesting URL:', url);
+    return this.http.get<string[]>(url);
+  }
+
+  filterFieldValues(
+    databaseName: string,
+    collection: string,
+    field: string,
+    filter: boolean,
+    operator?: string,
+    value?: string,
+    filterField?: string,
+    filterValue?: string,
+    filterOperator?: string
+  ): Observable<any[]> {
+    let params = new HttpParams()
+      .set('databaseName', databaseName)
+      .set('collection', collection)
+      .set('field', field)
+      .set('filter', filter.toString());
+
+    if (filter) {
+      if (!operator || !value) {
+        throw new Error('Operator and value are required when filter is true');
+      }
+      params = params
+        .set('operator', operator)
+        .set('value', value);
+
+      // Add secondary filter parameters if provided
+      if (filterField && filterValue && filterOperator) {
+        params = params
+          .set('filterField', filterField)
+          .set('filterValue', filterValue)
+          .set('filterOperator', filterOperator);
+      } else if (filterField || filterValue || filterOperator) {
+        throw new Error('filterField, filterValue, and filterOperator must all be provided together');
+      }
+    }
+
+    return this.http.get<any[]>(`${this.apiUrl}/filter-field`, { params });
+  }
 }
