@@ -1,8 +1,12 @@
-<div class="main-container">
-<app-database></app-database>
-  <app-Sidenav></app-Sidenav>
-   <!-- Contenu principal du Dashboard -->
-   <div class="main-content">
+
+  <div class="export-section">
+    <button
+      (click)="exportToPDF()"
+      [disabled]="isExporting"
+      class="export-btn">
+      {{ isExporting ? 'Exportation...' : 'Exporter en PDF' }}
+    </button>
+  </div>
   <div class="fullscreen-dashboard">
     <!-- Colonne 1 : Statistiques -->
     <div class="column stats-column">
@@ -34,6 +38,3 @@
       </div>
     </div>
   </div>
-
-   </div>
-</div>

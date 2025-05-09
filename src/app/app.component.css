@@ -1,0 +1,48 @@
+/* Layout global */
+.layout {
+  display: flex; /* Flexbox pour aligner la sidebar et le contenu */
+  height: 100vh; /* La hauteur de la fenêtre entière */
+  margin-top: 60px; /* Décale le contenu sous le header */
+}
+
+/* Sidebar fixée à gauche */
+app-sidenav {
+  position: fixed; /* Fixe la sidebar à gauche */
+  top: 60px; /* Sous le header */
+  left: 0;
+  width: 60px; /* Largeur de la sidebar lorsqu'elle est fermée */
+  height: calc(100vh - 60px); /* Occupe toute la hauteur sous le header */
+  transition: width 0.3s ease-in-out; /* Transition fluide lors de l'ouverture/fermeture */
+  background-color: #f4f4f4;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Permet d'avoir la sidebar au-dessus du contenu */
+}
+
+/* Quand la sidebar est ouverte */
+app-sidenav.sidebar-open {
+  width: 250px; /* Largeur de la sidebar ouverte */
+}
+
+/* Contenu principal à droite */
+main.content {
+  flex-grow: 1; /* Prend tout l'espace restant à droite de la sidebar */
+  padding: 20px;
+  transition: margin-left 0.3s ease; /* Transition pour décaler le contenu lorsque la sidebar se ferme */
+}
+
+/* Si la sidebar est ouverte, déplacer le contenu */
+main.content.expanded {
+  margin-left: 250px; /* Décale le contenu principal pour faire de la place à la sidebar ouverte */
+}
+
+/* Style pour le header */
+app-database {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* Hauteur du header */
+  background-color: #fff; /* Fond blanc pour le header */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 999; /* Le header reste au-dessus de la sidebar */
+}

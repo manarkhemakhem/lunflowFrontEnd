@@ -11,12 +11,11 @@ import { RouterModule } from '@angular/router';
   styleUrl: './Sidenav.component.css'
 })
 export class SidenavComponent {
-  isSidebarOpen = false;
-  @Output() sidebarToggled = new EventEmitter<boolean>();
+  @Input() isSidebarOpen: boolean = true; // ✅ C'est cette ligne qui manquait
+  @Output() toggle = new EventEmitter<void>();
 
   toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-    this.sidebarToggled.emit(this.isSidebarOpen);
+    this.toggle.emit();
   }
   }
 

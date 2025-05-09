@@ -1,7 +1,6 @@
-<div class="main-container">
-  <div class="header">
-    <app-database></app-database>
-    <!-- Bouton d'exportation -->
+
+  <div class="main-content" [class.expanded]="!isSidebarOpen">
+    <!-- Section Export -->
     <div class="export-section">
       <button
         (click)="exportToPDF()"
@@ -10,17 +9,10 @@
         {{ isExporting ? 'Exportation...' : 'Exporter en PDF' }}
       </button>
     </div>
-  </div>
-  <div class="sidebar" [ngClass]="{'sidebar-open': isSidebarOpen}">
-    <app-Sidenav (sidebarToggled)="onSidebarToggled($event)"></app-Sidenav>
-  </div>
-  <div #dashboardToCapture>
-  <div class="main-content">
     <div class="fullscreen-dashboard">
-      <!-- Colonne 1 : Statistiques -->
       <div class="column stats-column">
         <div class="stat-card blue">
-          <i class="fas fa-list list-icon" title="Voir la liste" (click)="navigateToCollaboratorList()"></i>
+          <i class="fas fa-list list-icon" (click)="navigateToCollaboratorList()"></i>
           <i class="fas fa-users icon"></i>
           <h2>Collaborateurs</h2>
           <h1>{{ totalCollaborators }}</h1>
@@ -36,7 +28,8 @@
           <h1>{{ totalNotAdmins }}</h1>
         </div>
       </div>
-      <!-- Colonne 2 : Graphiques -->
+
+      <!-- Colonnes 2 et 3 : Graphiques -->
       <div class="column chart-column">
         <div class="chart-card">
           <div #DoughnutChart class="chart"></div>
@@ -45,7 +38,6 @@
           <div #histogramChart class="chart"></div>
         </div>
       </div>
-      <!-- Colonne 3 : Graphiques -->
       <div class="column chart-column">
         <div class="chart-card">
           <div #DeletedStatusChartElement class="chart"></div>
@@ -56,5 +48,3 @@
       </div>
     </div>
   </div>
-</div>
-</div>

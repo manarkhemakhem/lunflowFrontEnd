@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {  SidenavComponent } from '../Sidenav/Sidenav.component';
 import { DatabaseComponent } from '../header/database/database.component';
@@ -7,6 +7,8 @@ import { DatabaseService } from '../services/database.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import * as echarts from 'echarts';
+import { ExportService } from '../services/export.service';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-user',
@@ -15,13 +17,15 @@ import * as echarts from 'echarts';
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
-export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
+export class UserComponent implements OnInit, AfterViewInit, OnDestroy {
   showCharts = true;
-
   isSidebarOpen = false;
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
+  isExporting = false;
+  title: string = 'Rapport Utilisateurs';
+  content: string = '';
+  filename: string = 'users_dashboard.pdf';
+  images: File[] = [];
+
   @ViewChild('DoughnutChart1') doughnutChart1Element?: ElementRef;
   @ViewChild('DoughnutChart2') doughnutChart2Element?: ElementRef;
   @ViewChild('DoughnutChart3') doughnutChart3Element?: ElementRef;
@@ -43,7 +47,9 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private userService: UserService,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private exportService: ExportService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +65,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Ensure charts are initialized after DOM is ready
     this.updateDoughnutChart();
     this.updateHistogramChart();
   }
@@ -68,6 +73,67 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  async exportToPDF(): Promise<void> {
+    this.isExporting = true;
+
+    // Generate dynamic content
+    this.content = `
+      Statistiques des Utilisateurs:
+      - Total Utilisateurs: ${this.totalUsers}
+      - Confirmés: ${this.confirmedCount}
+      - Non Confirmés: ${this.notConfirmedCount}
+      - Bloqués: ${this.blockedCount}
+      - Non Bloqués: ${this.notBlockedCount}
+      - Admins: ${this.adminCount}
+      - Non Admins: ${this.nonAdminCount}
+    `;
+
+    // Capture charts as images
+    const chartElements = [
+      { element: this.doughnutChart1Element, name: 'confirmed_chart.png' },
+      { element: this.doughnutChart2Element, name: 'blocked_chart.png' },
+      { element: this.doughnutChart3Element, name: 'admin_chart.png' },
+      { element: this.histogramChartElement, name: 'histogram_chart.png' }
+    ];
+
+    this.images = [];
+
+    for (const chart of chartElements) {
+      if (chart.element?.nativeElement) {
+        const canvas = await html2canvas(chart.element.nativeElement, {
+          scale: 2,
+          useCORS: true
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const blob = await fetch(imgData).then(res => res.blob());
+        this.images.push(new File([blob], chart.name, { type: 'image/png' }));
+      }
+    }
+
+    // Call export service
+    this.exportService.exportToPDF(this.title, this.content, this.filename, this.images).subscribe({
+      next: (response: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(response);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = this.filename;
+        link.click();
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'exportation du PDF', err);
+        this.errorMessage = 'Une erreur est survenue lors de l\'exportation du PDF';
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   private loadAllData(): void {
@@ -83,7 +149,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     this.groupedData = {};
     this.errorMessage = '';
 
-    // Fetch all users
     this.userService.getAllUsers().subscribe({
       next: (data) => {
         this.users = data;
@@ -96,7 +161,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch confirmed users
     this.userService.getConfirmedUsers().subscribe({
       next: (users) => {
         this.confirmedCount = users.length;
@@ -107,7 +171,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch not confirmed users
     this.userService.getNotConfirmedUsers().subscribe({
       next: (users) => {
         this.notConfirmedCount = users.length;
@@ -118,7 +181,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch creation dates
     this.userService.getDateCreation().subscribe({
       next: (dates) => {
         this.dateCreation = dates.filter(date => this.isValidDate(date));
@@ -132,7 +194,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch blocked users
     this.userService.getBlockedUsers().subscribe({
       next: (users) => {
         this.blockedCount = users.length;
@@ -143,7 +204,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch not blocked users
     this.userService.getNotBlockedUsers().subscribe({
       next: (users) => {
         this.notBlockedCount = users.length;
@@ -154,7 +214,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch admin users
     this.userService.getAdminUsers().subscribe({
       next: (users) => {
         this.adminCount = users.length;
@@ -165,7 +224,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Fetch non-admin users
     this.userService.getNonAdminUsers().subscribe({
       next: (users) => {
         this.nonAdminCount = users.length;
@@ -213,7 +271,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
           data: [
-            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: ' #f13529' } },
+            { value: this.confirmedCount, name: 'Confirmés', itemStyle: { color: '#f13529' } },
             { value: this.notConfirmedCount, name: 'Non Confirmés', itemStyle: { color: '#93C5FD' } }
           ]
         }

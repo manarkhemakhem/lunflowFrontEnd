@@ -1,61 +1,41 @@
-/* Sidebar */
-.sidebar {
+/* Sidebar - positionnement et largeur par défaut */
+.sidebar-content {
   position: fixed;
-  top: 60px;
+  top: 50px;
   left: 0;
-  width: 60px;
-  height: calc(100vh - 60px);
-  background: #f4f4f4;
-  border-radius: 0 10px 10px 0;
-  transition: width 0.3s ease;
-  z-index: 900;
-  overflow-y: auto;
+  height: 100%;
+  width: 60px; /* Largeur de la sidebar fermée */
+  background-color: #f4f4f4;
+  transition: width 0.3s ease-in-out; /* Transition pour l'animation */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow-x: hidden;
+  border-radius: 0 10px 0 10px;
+
+
 }
 
-.sidebar.sidebar-open {
-  width: 250px;
+
+/* Quand la sidebar est ouverte */
+.sidebar-content.sidebar-open {
+  width: 250px; /* Largeur de la sidebar ouverte */
 }
 
-/* Contenu du logo et du nom */
+/* En-tête de la sidebar avec le bouton pour l'ouvrir/fermer */
 .sidebar-header {
   display: flex;
-  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 30px;
+  padding: 10px;
 }
 
-/* Logo */
-.logo {
-  width: 80%;
-  margin-bottom: 10px;
-}
-
-/* Nom de la société */
-.company-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: #3a90d1;
-}
-
-/* Bouton pour ouvrir/fermer la sidebar */
-.menu-toggle {
-  background-color: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #3a90d1;
-  transition: color 0.3s ease;
-}
-
-
+/* Style du bouton d'ouverture/fermeture de la sidebar */
 .menu-toggle {
   background: none;
   border: none;
-  cursor: pointer;
   font-size: 24px;
-  color: #3a90d1;
+  cursor: pointer;
+  color: #333;
   padding: 5px;
   transition: color 0.3s ease;
 }
@@ -68,9 +48,10 @@
 .nav-links {
   list-style-type: none;
   padding: 0;
-  margin: 0;
+  margin-top: 30px; /* Un peu de marge au-dessus des éléments */
 }
 
+/* Style des éléments de navigation */
 .nav-links li {
   margin: 20px 0;
 }
@@ -85,71 +66,35 @@
   transition: background-color 0.3s ease;
 }
 
+/* Couleur de fond au survol des éléments de navigation */
 .nav-links a:hover {
   background-color: #3a90d1;
   color: white;
 }
 
+/* Icônes à gauche des éléments de navigation */
 .nav-links i {
   margin-right: 10px;
+  font-size: 18px;
 }
 
+/* Affichage du texte seulement si la sidebar est ouverte */
+.nav-links span {
+  display: inline-block;
+}
 
-.sidebar.sidebar-open .nav-links span {
+/* Quand la sidebar est ouverte, afficher le texte */
+.sidebar-content.sidebar-open .nav-links span {
   display: inline;
 }
 
+/* Option : active sur un lien de navigation */
 .nav-links a.active {
-  background: #3a90d1;
-  color: #fff;
+  background-color: #3a90d1;
+  color: white;
 }
 
-.nav-links a.active i {
-  color: #fff;
-}
-
-/* Contenu principal (ajustement pour cohérence) */
-.main-content {
-  margin-left: 60px;
-  margin-top: 60px;
-  flex: 1;
-  padding: 20px;
-  transition: margin-left 0.3s ease;
-}
-
-.sidebar.sidebar-open + .main-content {
-  margin-left: 250px;
-}
-
-/* Media Queries pour responsivité */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 50px;
-  }
-
-  .sidebar.sidebar-open {
-    width: 200px;
-  }
-
-  .sidebar.sidebar-open + .main-content {
-    margin-left: 200px;
-  }
-
-  .logo {
-    width: 30px;
-    height: 30px;
-  }
-
-  .company-name {
-    font-size: 16px;
-  }
-
-  .nav-links a {
-    padding: 10px 15px;
-    font-size: 14px;
-  }
-
-  .nav-links i {
-    font-size: 18px;
-  }
+/* Ajout d'un effet de transition pour un affichage fluide de la sidebar */
+.sidebar-content {
+  transition: width 0.3s ease;
 }

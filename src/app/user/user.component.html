@@ -1,8 +1,13 @@
-<div class="main-container">
-  <app-database></app-database>
- <app-Sidenav></app-Sidenav>
-  <!-- Contenu principal du Dashboard -->
-  <div class="main-content">
+
+  <!-- Bouton d'exportation -->
+  <div class="export-section">
+    <button
+      (click)="exportToPDF()"
+      [disabled]="isExporting"
+      class="export-btn">
+      {{ isExporting ? 'Exportation...' : 'Exporter en PDF' }}
+    </button>
+  </div>
 <div class="fullscreen-dashboard">
   <!-- Colonne 1 : Statistiques -->
   <div class="column stats-column">
@@ -36,7 +41,5 @@
 
       <div #HistogramChart class="chart"></div>
     </div>
-  </div>
-</div>
   </div>
 </div>

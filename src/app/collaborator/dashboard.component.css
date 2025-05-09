@@ -1,53 +1,17 @@
-/* Container principal */
-.main-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: #f5f7fa;
-}
 
-/* Header */
-.header {
-  width: 100%;
-  height: 45px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  background: #fff; /* Ajouté pour clarté */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
-/* Sidebar */
-.sidebar {
-  position: fixed;
-  top: 60px; /* Sous le header */
-  left: 0;
-  width: 60px;
-  height: calc(100vh - 60px);
-  background: #f4f4f4;
-  border-radius: 0 10px 10px 0;
-  transition: width 0.3s ease;
-  z-index: 900;
-  overflow-y: auto;
-}
-
-.sidebar.sidebar-open {
-  width: 250px;
-}
-
-/* Contenu principal */
+/* Contenu principal à droite */
 .main-content {
-  margin-left: 60px;
-  margin-top: 60px;
-  flex: 1;
+  flex-grow: 1;
   padding: 20px;
   transition: margin-left 0.3s ease;
 }
 
-.sidebar.sidebar-open + .main-content {
-  margin-left: 250px;
+/* Si la sidebar est fermée, on peut agrandir le contenu */
+.main-content.expanded {
+  margin-left: 60px;
 }
+
 
 /* Dashboard */
 .fullscreen-dashboard {
@@ -66,16 +30,17 @@
   height: 100%;
 }
 
-/* Cartes de statistiques */
+/* Stat Card */
 .stat-card {
   width: 100%;
-  max-width: 400px;
-  height: 230px;
+  max-width: 300px;
+  height: 200px;
   border-radius: 12px;
   padding: 16px 20px;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
-  background: #fff;
+  background-color: #fff;
   text-align: center;
+  color: #000;
   display: flex;
   flex-direction: column;
   justify-content: center;

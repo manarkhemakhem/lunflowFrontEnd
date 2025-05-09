@@ -141,3 +141,12 @@ button:hover,
   color: #3a90d1;
   text-align: center;
 }
+.navbar {
+  height: 50px;
+  background-color: #3a90d1;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}

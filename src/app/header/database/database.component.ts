@@ -27,6 +27,11 @@ import { DatabaseDialogComponent } from '../database-dialog/database-dialog.comp
   styleUrls: ['./database.component.css']
 })
 export class DatabaseComponent implements OnInit {
+  @Output() toggleSidebar = new EventEmitter<void>();
+
+  onToggleSidebar() {
+    this.toggleSidebar.emit();
+  }
   selectedDatabase: string = '';
 
   constructor(

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {  SidenavComponent } from '../Sidenav/Sidenav.component';
 import { DatabaseComponent } from '../header/database/database.component';
@@ -8,6 +8,8 @@ import { DatabaseService } from '../services/database.service';
 import * as echarts from 'echarts';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import html2canvas from 'html2canvas';
+import { ExportService } from '../services/export.service';
 
 @Component({
   selector: 'app-group',
@@ -28,12 +30,19 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
   groupsByAddress: { address: string; count: number }[] = [];
   errorMessage: string = '';
   currentDatabase: string = '';
+  isExporting = false;
+  title: string = 'Rapport Groupes';
+  content: string = '';
+  filename: string = 'groups_dashboard.pdf';
+  images: File[] = [];
   private databaseSubscription!: Subscription;
 
   constructor(
     private groupService: GroupService,
     private collaboratorService: CollaboratorService,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private exportService: ExportService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +63,61 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.databaseSubscription) {
       this.databaseSubscription.unsubscribe();
     }
+  }
+
+  async exportToPDF(): Promise<void> {
+    this.isExporting = true;
+
+    // Generate dynamic content
+    this.content = `
+      Statistiques des Groupes:
+      - Total Groupes: ${this.totalGroups}
+      - Collaborateurs par Groupe:
+        ${this.collaboratorsCountByGroup.map(g => `- ${g.groupLabel}: ${g.count}`).join('\n        ')}
+      - Groupes par Pays:
+        ${this.groupsByAddress.map(a => `- ${a.address}: ${a.count}`).join('\n        ')}
+    `;
+
+    // Capture charts as images
+    const chartElements = [
+      { element: this.chartElement, name: 'collaborators_chart.png' },
+      { element: this.addressChartElement, name: 'address_chart.png' },
+      { element: this.workflowChartElement, name: 'workflow_chart.png' },
+      { element: this.histogramChartElement, name: 'histogram_chart.png' }
+    ];
+
+    this.images = [];
+
+    for (const chart of chartElements) {
+      if (chart.element?.nativeElement) {
+        const canvas = await html2canvas(chart.element.nativeElement, {
+          scale: 2,
+          useCORS: true
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const blob = await fetch(imgData).then(res => res.blob());
+        this.images.push(new File([blob], chart.name, { type: 'image/png' }));
+      }
+    }
+
+    // Call export service
+    this.exportService.exportToPDF(this.title, this.content, this.filename, this.images).subscribe({
+      next: (response: Blob) => {
+        const downloadUrl = window.URL.createObjectURL(response);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = this.filename;
+        link.click();
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'exportation du PDF', err);
+        this.errorMessage = 'Une erreur est survenue lors de l\'exportation du PDF';
+        this.isExporting = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   private loadGroupData(): void {
@@ -140,7 +204,7 @@ export class GroupComponent implements OnInit, AfterViewInit, OnDestroy {
       series: [{
         data: this.collaboratorsCountByGroup.map(item => item.count),
         type: 'bar',
-        color: '#1E3A8A ',
+        color: '#1E3A8A',
         barWidth: '60%',
         barCategoryGap: '20%',
         label: {
