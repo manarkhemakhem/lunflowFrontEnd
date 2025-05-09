@@ -87,6 +87,12 @@
     </select>
   </div>
 
+  <div class="form-group" *ngIf="displayMode === 'chart'">
+    <label>Palette de couleurs:</label>
+    <select [(ngModel)]="selectedPalette" (ngModelChange)="updateChart()">
+      <option *ngFor="let palette of colorPalettes" [value]="palette.name">{{ palette.name }}</option>
+    </select>
+  </div>
   <div *ngIf="displayMode === 'table' && collectionData.length > 0" class="table-container">
     <table>
       <thead>

@@ -69,6 +69,19 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   operationOptions: string[] = ['none', 'count', 'avg', 'percentage'];
 
+// Palettes de couleurs prédéfinies
+colorPalettes: { name: string; colors: string[] }[] = [
+  { name: 'Défaut', colors: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de'] },
+  { name: 'Vibrant', colors: ['#ff4500', '#ff8c00', '#ffd700', '#90ee90', '#00ced1'] },
+  { name: 'Pastel', colors: ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'] },
+  { name: 'Monochrome', colors: ['#1e90ff', '#4169e1', '#6495ed', '#87ceeb', '#b0e0e6'] },
+];
+
+selectedPalette: string = this.colorPalettes[0].name; // Palette par défaut
+
+
+
+
   @ViewChild('chart') chartElement?: ElementRef;
   private chart: echarts.ECharts | null = null;
 
@@ -171,7 +184,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   updateFieldsPagination(): void {
     this.fieldsTotalPages = Math.ceil(this.fieldNames.length / this.fieldsPageSize);
-    this.fieldsCurrentPage = Math.min(this.fieldsCurrentPage, this.fieldsTotalPages || 1);
+    this.fieldsCurrentPage = Math.min(this.fieldsCurrentPage, this.fieldsTotalPages + 1);
     this.cdr.detectChanges();
   }
 
@@ -613,6 +626,10 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     let values: number[] = [];
     let option: echarts.EChartsOption;
 
+    // Trouver la palette sélectionnée
+    const selectedPaletteObj = this.colorPalettes.find(p => p.name === this.selectedPalette);
+    const paletteColors = selectedPaletteObj ? selectedPaletteObj.colors : this.colorPalettes[0].colors;
+
     if (!chartField || !this.aggregatedResults[chartField]) {
       option = { title: { text: 'Aucune donnée à afficher', left: 'center' } };
     } else if (operation === 'none') {
@@ -626,6 +643,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (nbValues === 1) {
         option = {
           title: { text: `Valeur unique: ${labels[0]}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           series: [
             {
               type: 'gauge',
@@ -635,7 +653,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
               radius: '90%',
               min: 0,
               max: values[0] * 2,
-              axisLine: { lineStyle: { width: 15, color: [[1, '#1890ff']] } },
+              axisLine: { lineStyle: { width: 15, color: [[1, paletteColors[0]]] } },
               pointer: { show: true },
               title: { show: true, offsetCenter: [0, '-30%'] },
               detail: {
@@ -651,6 +669,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (nbValues === 2) {
         option = {
           title: { text: `Répartition par ${chartField}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
           xAxis: { type: 'category', data: labels },
           yAxis: { type: 'value' },
@@ -658,7 +677,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             {
               type: 'bar',
               data: values,
-              itemStyle: { color: '#1890ff' },
+              itemStyle: { color: paletteColors[0] },
               barWidth: '40%',
               label: { show: true, position: 'top' },
             },
@@ -667,6 +686,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (nbValues >= 3 && nbValues <= 5) {
         option = {
           title: { text: `Répartition par ${chartField}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           tooltip: { trigger: 'item' },
           legend: { bottom: 10, left: 'center' },
           series: [
@@ -683,6 +703,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         option = {
           title: { text: `Répartition par ${chartField}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           tooltip: {},
           radar: {
             indicator: labels.map((label) => ({ name: label, max: Math.max(...values) + 2 })),
@@ -706,6 +727,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (nbValues === 1) {
         option = {
           title: { text: `Comptage: ${labels[0]}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           series: [
             {
               type: 'gauge',
@@ -715,7 +737,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
               radius: '90%',
               min: 0,
               max: values[0] * 2,
-              axisLine: { lineStyle: { width: 15, color: [[1, '#1890ff']] } },
+              axisLine: { lineStyle: { width: 15, color: [[1, paletteColors[0]]] } },
               pointer: { show: true },
               title: { show: true, offsetCenter: [0, '-30%'] },
               detail: {
@@ -731,6 +753,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         option = {
           title: { text: `Comptage par ${chartField}`, left: 'center' },
+          color: paletteColors, // Appliquer la palette
           tooltip: { trigger: 'item' },
           legend: { bottom: 10, left: 'center' },
           series: [
@@ -749,6 +772,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       const avgValue = parseFloat(this.aggregatedResults[chartField]);
       option = {
         title: { text: `Moyenne de ${chartField}`, left: 'center' },
+        color: paletteColors, // Appliquer la palette
         series: [
           {
             type: 'gauge',
@@ -758,7 +782,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             radius: '90%',
             min: 0,
             max: avgValue * 2 || 100,
-            axisLine: { lineStyle: { width: 15, color: [[1, '#1890ff']] } },
+            axisLine: { lineStyle: { width: 15, color: [[1, paletteColors[0]]] } },
             pointer: { show: true },
             title: { show: true, offsetCenter: [0, '-30%'] },
             detail: {
@@ -776,6 +800,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       values = Object.values(this.aggregatedResults[chartField]).map((val: any) => parseFloat(val.replace('%', '')));
       option = {
         title: { text: `Pourcentage par ${chartField}`, left: 'center' },
+        color: paletteColors, // Appliquer la palette
         tooltip: { trigger: 'item', formatter: '{b}: {c}% ({d}%)' },
         legend: { bottom: 10, left: 'center' },
         series: [
@@ -796,7 +821,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.chart.setOption(option, true);
     this.chart.resize();
   }
-
   clearChart(): void {
     this.showChart = false;
     if (isPlatformBrowser(this.platformId) && this.chart) {
